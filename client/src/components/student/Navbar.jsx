@@ -35,7 +35,7 @@ const Navbar = () => {
         <div className='flex items-center gap-3'>
           {user && 
           <>
-           <button onClick={()=>{navigate('/educator')}}>{isEducator?'Educator Dashboard':'Become Educator'}</button>|
+           <button onClick={()=>{navigate('/educator')}}>{isEducator?'Instructor Dashboard':'Become Educator'}</button>|
             <Link to='/my-enrollments'>My Enrollments</Link>
           </>
           }

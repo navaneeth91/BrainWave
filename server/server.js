@@ -1,0 +1,31 @@
+import express from 'express';
+import cors from 'cors';
+import mongoose from 'mongoose';
+import multer from 'multer';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import dotenv from 'dotenv/config';
+import connectDB from './configs/mongodb.js';
+import { clerkWebhooks } from './controllers/webhooks.js';
+
+//initalize express
+const app=express()
+
+//connect to database
+await  connectDB();
+
+
+//middlewares
+app.use(cors())
+
+
+// Routes
+app.get('/',(req, res)=>res.send("API Working"))
+app.post('/clerk' ,express.json(),clerkWebhooks)
+
+//port
+const PORT=process.env.PORT||5000
+
+app.listen(PORT,()=>{
+    console.log(`server is running on port ${PORT}`)
+})
