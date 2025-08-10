@@ -1,10 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import mongoose from 'mongoose';
-import multer from 'multer';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import dotenv from 'dotenv/config';
+import  'dotenv/config';
 import connectDB from './configs/mongodb.js';
 import { clerkWebhooks } from './controllers/webhooks.js';
 
