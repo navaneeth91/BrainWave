@@ -1,6 +1,6 @@
 # BrainWave
 
-> **BrainWave** — an e-learning web application that helps teachers publish course content (lectures, quizzes) and students learn, take assessments, track progress and get certificates.
+> **BrainWave** — an e-learning web application that helps teachers publish course content (lectures, quizzes) and students  to  learn, take assessments, track progress and get certificates.
 
 ---
 
