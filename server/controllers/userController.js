@@ -83,3 +83,89 @@ export const purchaseCourse=async(req,res)=>{
         res.json({success:false,message:error.message})
     }
 }
+
+//UPDATE USER COURSE PROGRESS
+ export const updateCourseProgress=async(req,res)=>{    
+    try {
+        const userId=req.auth.userId;
+        const{courseId,lectureId}=req.body;
+        const progressData=await CourseProgress.findOne({userId,courseId});
+        if(progressData)
+        {
+            if(progressData.lectureCompleted.includes(lectureId))
+            {
+                return res.json({success:true,message:"Lecture Already Marked as Completed"})
+            }
+           progressData.lectureCompleted.push(lectureId);
+           await progressData.save();
+        }
+        else{
+            await CourseProgress.create({
+                userId,
+                courseId,
+                lectureCompleted:[lectureId]
+            });
+        }
+        return res.json({success:true,message:"Progress Updated Successfully"});
+    }
+    catch(error)
+    {
+        return res.json({success:false,message:error.message});
+    }
+}
+
+//get user course progress
+export const getCourseProgress=async(req,res)=>{
+    try {
+        const userId=req.auth.userId;
+        const{courseId}=req.body;
+        const progressData=await CourseProgress.findOne({userId});
+        if(!progressData)
+        {
+            return res.json({success:false,message:"No Progress Data Found"});
+        }
+        return res.json({success:true,progressData});
+    }
+    catch(error)
+    {
+        return res.json({success:false,message:error.message});
+    }
+}
+
+//add user rating to course
+export const addUserRating=async(req,res)=>{
+
+        const userId=req.auth.userId;
+        const{courseId,rating}=req.body;
+        
+        if(!userId||!courseId||!rating||rating<1||rating>5)
+        {
+            return res.json({success:false,message:"Invalid Input"});
+        }
+        try {
+            const courseData=await Course.findById(courseId);
+            if(!courseData)
+            {
+                return res.json({success:false,message:"Course Not Found"});
+            }
+            const user=await User.findById(userId);
+            if(!user|| !user.enrolledCourses.includes(courseId))
+            {
+                return res.json({success:false,message:"User Not Enrolled in the Course"});
+            }
+            const existingRatingIndex=courseData.courseRatings.findIndex(r=>r.userid===userId);
+            if(existingRatingIndex!==-1)
+            {
+                courseData.courseRatings[existingRatingIndex].rating=rating;
+            }
+            else{
+                courseData.courseRatings.push({userid:userId,rating})
+            }
+            await courseData.save();
+            return res.json({success:true,message:"Rating Submitted Successfully"});
+        }
+        catch(error)
+        {
+            return res.json({success:false,message:error.message});
+        }
+    }
