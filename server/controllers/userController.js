@@ -40,6 +40,9 @@ export const purchaseCourse=async(req,res)=>{
         const {origin}=req.headers;
         const userData=await User.findById(userId);
         const courseData=await Course.findById(courseId); 
+        console.log("purchaseCourse body:", req.body);
+        console.log("User Data:", userData);
+        console.log("Course Data:", courseData);
         if(!userData || !courseData)
         {
             return res.json({success:false,message:"User or Course Not Found"})
@@ -77,7 +80,8 @@ export const purchaseCourse=async(req,res)=>{
 
             }
         })
-        res.json({success:true,session_url:session.url})
+        res.json({ success: true, sessionUrl: session.url });
+
 
     } catch (error) {
         res.json({success:false,message:error.message})

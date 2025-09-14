@@ -1,6 +1,6 @@
 import { Webhook } from "svix";
 import User from "../models/User.js";
-import { Purchase } from "../models/Purchase.js";
+import  Purchase  from "../models/Purchase.js";
 import Course from "../models/Course.js";
 import Stripe from "stripe";
 
@@ -20,11 +20,11 @@ export const clerkWebhooks = async (req, res) => {
     const { data, type } = req.body;
 
     switch (type) {
-      case "user.created": {
+      case 'user.created': {
         const userdata = {
           _id: data.id,
           email: data.email_addresses[0].email_address,
-          name: data.first_name+ " "+data.last_name,
+          name: data.first_name + " " + data.last_name,
           imageUrl: data.image_url,
         }
         await User.create(userdata)
@@ -32,10 +32,10 @@ export const clerkWebhooks = async (req, res) => {
         break;
       }
 
-      case "user.updated": {
+      case 'user.updated': {
         const userdata = {
           email: data.email_addresses[0].email_address,
-          name: data.first_name +" " +data.last_name ,
+          name: data.first_name + " " + data.last_name,
           imageUrl: data.image_url,
         }
         await User.findByIdAndUpdate(data.id, userdata)
@@ -43,7 +43,7 @@ export const clerkWebhooks = async (req, res) => {
         break;
       }
 
-      case "user.deleted": {
+      case 'user.deleted': {
         await User.findByIdAndDelete(data.id)
         res.json({})
         break;
