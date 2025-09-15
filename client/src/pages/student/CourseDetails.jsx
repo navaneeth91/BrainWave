@@ -5,7 +5,6 @@ import Loading from '../../components/student/Loading';
 import { AppContext } from '../../context/AppContext';
 import { assets } from '../../assets/assets';
 import humanizeDuration from 'humanize-duration';
-import { set } from 'mongoose';
 import YouTube from 'react-youtube';
 import axios from 'axios';
 import { toast } from 'react-toastify';
