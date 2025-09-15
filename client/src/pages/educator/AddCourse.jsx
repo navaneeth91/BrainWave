@@ -3,8 +3,15 @@ import uniqid from 'uniqid';
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
 import { assets } from '../../assets/assets';
+import { AppContext } from '../../context/AppContext';
+import { useContext } from 'react';
+import { toast } from 'react-toastify';
+import axios from 'axios';
+
 
 const AddCourse = () => {
+
+  const {backendUrl,getToken}=useContext(AppContext);
   const quillRef = useRef(null);
   const editorRef = useRef(null);
 
@@ -18,9 +25,8 @@ const AddCourse = () => {
 
   const [lectureDetails, setLectureDetails] = useState({
     lectureTitle:'',
-    lectureDetails: '',
     lectureUrl: '',
-    lectureDuration: '',
+    lectureDuration:0,
     isPreviewFree: false,
   });
   const handleChapter=(action,chapterId)=>{
@@ -31,7 +37,7 @@ const AddCourse = () => {
       {
         const newChapter={
           chapterId:uniqid(),
-          chapeterTitle:title,
+          chapterTitle:title,
           chapterContent:[],
           collapsed:false,
           chapterOrder:chapters.length>0?chapters.slice(-1)[0].chapterOrder+1:1,
@@ -94,7 +100,48 @@ const AddCourse = () => {
     });
   };
   const handleSubmit=async(e)=>{
-    e.preventDefault()
+    try {
+      e.preventDefault()
+      if(!image)
+      {
+        toast.error('Please upload course thumbnail');
+      }
+      const courseData={
+        courseTitle,
+        courseDescription:quillRef.current.root.innerHTML,
+        coursePrice:Number(coursePrice),
+        discount:Number(discount),
+        courseContent:chapters,
+        
+      }
+      const formData=new FormData();
+      formData.append('courseData',JSON.stringify(courseData));
+      formData.append('courseThumbnail',image);
+      const token=await getToken();
+      const {data}=await axios.post(backendUrl+'/api/educator/add-course',formData,{
+        headers:{
+          Authorization:`Bearer ${token}`,
+          'Content-Type':'multipart/form-data'
+        }
+      })
+      if(data.success)
+      {
+        toast.success('Course added successfully');
+        setcourseTitle('');
+        quillRef.current.root.innerHTML='';
+        setcoursePrice(0);
+        setDiscount(0);
+        setImage(null);
+        setChapters([]);
+      }
+      else
+      {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+    
   }
 
   useEffect(() => {
@@ -164,7 +211,7 @@ const AddCourse = () => {
                   <div className='flex justify-between items-center p-4 border-b'>
                     <div className='flex items-center'>
                       <img src={assets.dropdown_icon} width={14}  onClick={()=>handleChapter('toggle',chapter.chapterId)} />
-                      <span className='font-semibold'>{chapterIndex+1}{chapter.chapeterTitle}</span>
+                      <span className='font-semibold'>{chapterIndex+1}{chapter.chapterTitle}</span>
 
                     </div>
                     <span className='text-gray-500'>{chapter.chapterContent.length} Lectures</span>

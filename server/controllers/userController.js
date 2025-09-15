@@ -2,6 +2,7 @@ import Stripe from "stripe";
 import Course from "../models/Course.js";
 import User from "../models/User.js";
 import Purchase from "../models/Purchase.js";
+import CourseProgress from "../models/CourseProgress.js";
 
 ///get user data
 export const getUserData = async(req,res)=>{
@@ -96,18 +97,18 @@ export const purchaseCourse=async(req,res)=>{
         const progressData=await CourseProgress.findOne({userId,courseId});
         if(progressData)
         {
-            if(progressData.lectureCompleted.includes(lectureId))
+            if(progressData.completedLectures.includes(lectureId))
             {
                 return res.json({success:true,message:"Lecture Already Marked as Completed"})
             }
-           progressData.lectureCompleted.push(lectureId);
+           progressData.completedLectures.push(lectureId);
            await progressData.save();
         }
         else{
             await CourseProgress.create({
                 userId,
                 courseId,
-                lectureCompleted:[lectureId]
+                completedLectures:[lectureId]
             });
         }
         return res.json({success:true,message:"Progress Updated Successfully"});

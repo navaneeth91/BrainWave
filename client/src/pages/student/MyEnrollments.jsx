@@ -14,17 +14,20 @@ const MyEnrollments = () => {
   const getCourseProgress = async () => {
     try {
       const token = await getToken();
-      const progressPromises = await Promise.all
+      const tempProgressArray = await Promise.all
       (enrolledCourses.map(async (course) => {
         const { data } = await axios.post(`${backendUrl}/api/user/get-course-progress/`,{courseId:course._id}, {
           headers: { Authorization: `Bearer ${token}` }
         })
         let totalLectures=calculateNoofLectures(course);
-        const lectureCompleted=data.progressData?data.progressData.lectureCompleted.length:0;
-        return { lectureCompleted, totalLectures };
-        
+        const completedLectures = Array.isArray(data?.progressData?.completedLectures)
+  ? data.progressData.completedLectures.length
+  : 0;
+
+        return { completedLectures, totalLectures };
+
       })) 
-      setProgressArray(progressPromises);
+      setProgressArray(tempProgressArray);
     } catch (error) {
       toast.error(error.message);
       console.error('Error fetching course progress:', error);
@@ -58,16 +61,16 @@ const MyEnrollments = () => {
           {enrolledCourses.map((course,index) => (
             <tr key={index} className='border-b border-gray-500/20'>
               <td className='md:px-4 pl-2 md:pl-4 py-3 flex items-center space-x-2 '>
-                <img src={course.courseThumbnail} alt={course.courseName} className='w-14 sm:w-24 md:w-28 object-cover rounded' />
+                <img src={course.courseThumbnail} alt={course.courseTitle} className='w-14 sm:w-24 md:w-28 object-cover rounded' />
                 <div>
                   <span className='mb-1 max-sm:text-sm'>{course.courseTitle}</span>
-                  <Line percent={progressArray[index] ? (progressArray[index].lectureCompleted / progressArray[index].totalLectures) * 100 : 0} strokeWidth="2" strokeColor="#d67d08ff" className='bg-gray-300 rounded-full' />
+                  <Line percent={progressArray[index] ? (progressArray[index].completedLectures / progressArray[index].totalLectures) * 100 : 0} strokeWidth="2" strokeColor="#d67d08ff" className='bg-gray-300 rounded-full' />
                 </div>
                 
               </td >
               <td className='px-4 py-3 max-sm:hidden'>{calculateCourseDuration(course)}</td>
-              <td className='px-4 py-3 max-sm:hidden'>{progressArray[index]&& `${progressArray[index].lectureCompleted}/${progressArray[index].totalLectures}`} Lectures</td>
-              <td className='px-4 py-3 max-sm:text-right'> <button className='px-3 sm:px-5 py-1.5 sm:py-2 bg-orange-600 maxx-sm:text-xs text-white' onClick={()=>navigate('/player/'+course._id)}>{progressArray[index]&& progressArray[index].lectureCompleted/progressArray[index].totalLectures===1?'Completed':'On Going'}</button> </td>
+              <td className='px-4 py-3 max-sm:hidden'>{progressArray[index]&& `${progressArray[index].completedLectures}/${progressArray[index].totalLectures}`} Lectures</td>
+              <td className='px-4 py-3 max-sm:text-right'> <button className='px-3 sm:px-5 py-1.5 sm:py-2 bg-orange-600 maxx-sm:text-xs text-white' onClick={()=>navigate('/player/'+course._id)}>{progressArray[index]&& progressArray[index].completedLectures/progressArray[index].totalLectures===1?'Completed':'On Going'}</button> </td>
             </tr>
           ))}
         </tbody>
