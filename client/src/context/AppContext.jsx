@@ -1,5 +1,4 @@
 import { createContext,use,useEffect,useState } from "react";
-import { dummyCourses } from "../assets/assets";
 import { useNavigate } from "react-router-dom";
 import humanizeDuration from "humanize-duration";
 export const AppContext = createContext();
