@@ -1,5 +1,5 @@
 import React from 'react'
-import { assets, dummyEducatorData } from '../../assets/assets'
+import { assets } from '../../assets/assets'
 import { UserButton, useUser } from '@clerk/clerk-react'
 import { Link } from 'react-router-dom'
 import { useContext } from 'react'
@@ -7,7 +7,6 @@ import { AppContext } from '../../context/AppContext'
 
 const Navbar = () => {
   const { user } = useUser();
-  const educatorData = dummyEducatorData;
 
   return (
     <div className='flex items-center justify-between px-4 md:px-10 border-b border-gray-500 py-4'>

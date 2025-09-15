@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { dummyStudentEnrolled } from '../../assets/assets'
 import Loading from '../../components/student/Loading'
 import { useContext } from 'react'
 import { AppContext } from '../../context/AppContext'
