@@ -68,7 +68,7 @@ export const dummyTestimonial = [
     {
         name: 'Ashwanth Voorugonda',
         role: 'SWE 1 @ Amazon',
-        image: assets.admin2,
+        image: assets.admin3,
         rating: 5,
         feedback: 'BrainWave has transformed the way I learn online. The structured courses and intuitive interface make it super easy to stay consistent and track my progress.',
     },
