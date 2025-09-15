@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 
 
 export const AppContextProvider = (props)=>{
-    const backendUrl="http://localhost:5000";
+    const backendUrl=import.meta.env.VITE_BACKEND_URL
     const [allCourses, setAllCourses] = useState([])
 
     const [isEducator, setIsEducator] = useState(false)
