@@ -87,26 +87,30 @@ const Player = () => {
       toast.error(error.message);
     }
   };
+const handleRate = async (rating) => {
+  try {
+    const token = await getToken();
+    console.log('Sending rating:', rating, 'for course:', courseId);
 
-  const handleRate = async (rating) => {
-    try {
-      const token = await getToken();
-      const { data } = await axios.post(
-        backendUrl + '/api/user/add-rating',
-        { courseId, rating },
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
+    const { data } = await axios.post(
+      backendUrl + '/api/user/add-user-rating',
+      { courseId, rating: Number(rating) },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
 
-      if (data.success) {
-        toast.success(data.message);
-        fetchEnrolledCourses();
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      toast.error(error.message);
+    console.log('Response:', data);
+
+    if (data.success) {
+      toast.success(data.message);
+      fetchEnrolledCourses(); // refresh course data if needed
+    } else {
+      toast.error(data.message);
     }
-  };
+  } catch (error) {
+    console.error('Rating error:', error);
+    toast.error(error.message || 'Something went wrong');
+  }
+};
 
 
   useEffect(() => {
@@ -132,11 +136,11 @@ const playerOptions = {
   height: '390',
   width: '100%',
   playerVars: {
-    autoplay: 0,         // 1 to autoplay
-    modestbranding: 1,   // Removes the YouTube logo
-    rel: 0,              // Prevents showing related videos at the end
-    controls: 1,         // Show player controls
-    showinfo: 0,         // Deprecated but previously hid info
+    autoplay: 0,        
+    modestbranding: 1,  
+    rel: 0,             
+    controls: 1,        
+    showinfo: 0,         
   },
 };
 
@@ -228,7 +232,7 @@ const playerOptions = {
           </div>
           <div className="flex items-center justify-between mt-10">
             <h1 className="text-xl font-bold">Rate This Course:</h1>
-            <Rating initialRating={initialRating} onRate={handleRate} />
+            <Rating initialRating={initialRating} onrate={handleRate} />
           </div>
         </div>
 
