@@ -67,24 +67,25 @@ export const assets = {
 }
 export const dummyTestimonial = [
     {
+        name: 'Navaneeth Siliveri',
+        role: 'SWE 1 @ Google',
+        image: assets.admin1,
+        rating: 4.5,
+        feedback: 'BrainWave is a game-changer for e-learning. The clean design, smooth navigation, and course tracking features make it stand out from other platforms.',
+    },
+    {
         name: 'Ashwanth Voorugonda',
-        role: 'SWE 1 @ Amazon',
+        role: 'SWE 2 @ Amazon',
         image: assets.admin3,
         rating: 5,
         feedback: 'BrainWave has transformed the way I learn online. The structured courses and intuitive interface make it super easy to stay consistent and track my progress.',
     },
     {
         name: 'Nithin Arumulla',
-        role: 'SWE 2 @ Samsung',
+        role: 'SWE 3 @ Samsung',
         image: assets.admin2,
         rating: 4,
         feedback: 'I love how BrainWave integrates video lectures, quizzes, and certificates all in one place. It’s the perfect companion for both students and working professionals.',
     },
-    {
-        name: 'Navaneeth Siliveri',
-        role: 'SWE 2 @ Google',
-        image: assets.admin1,
-        rating: 4.5,
-        feedback: 'BrainWave is a game-changer for e-learning. The clean design, smooth navigation, and course tracking features make it stand out from other platforms.',
-    },
+    
 ];
