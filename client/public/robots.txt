@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Block private or sensitive routes (optional)
+Disallow: /educator/
+Disallow: /my-enrollments
+Disallow: /player/
+Disallow: /loading/
+
+# Sitemap location
+Sitemap: https://www.brain-wave.app/sitemap.xml
