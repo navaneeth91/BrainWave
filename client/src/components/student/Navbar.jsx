@@ -43,9 +43,7 @@ const Navbar = () => {
 
   return (
     <div
-      className={`flex items-center justify-between px-4 sm:px-10 md:px-14 lg:px-36 border-b border-gray-500 py-4 ${
-        isCourseListpage ? 'bg-white' : 'bg-orange-200/70'
-      }`}
+      className={`flex items-center justify-between px-4 sm:px-10 md:px-14 lg:px-36 border-b border-gray-500 py-4 bg-orange-200/70`}
     >
       {/* Logo */}
       <img

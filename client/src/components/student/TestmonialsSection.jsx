@@ -3,7 +3,7 @@ import { assets, dummyTestimonial } from '../../assets/assets'
 
 const TestmonialsSection = () => {
   return (
-    <div className='py-14 px-8 md:px-0 bg-gray-50'>
+    <div className='py-14 px-8 md:px-0 bg-gray-50 text-align-center flex flex-col items-center '>
       <h2 className='text-3xl font-medium text-grey-800'>Testimonials Section</h2>
       <p className='md:text-base text-grey-500 mt-4 max-w-2xl'> Hear from our learners as they share their journeys
          of transformation,success, and how our <b/ > platform has made a difference in their lives. </p>

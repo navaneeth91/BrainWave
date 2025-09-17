@@ -136,41 +136,37 @@ export const getCourseProgress=async(req,res)=>{
         return res.json({success:false,message:error.message});
     }
 }
+export const addUserRating = async (req, res) => {
+  const userId = req.auth.userId;
+  const { courseId, rating } = req.body;
+  const ratingValue = Number(rating);
 
-//add user rating to course
-export const addUserRating=async(req,res)=>{
+  if (!userId || !courseId || !ratingValue || ratingValue < 1 || ratingValue > 5) {
+    return res.json({ success: false, message: "Invalid Input" });
+  }
 
-        const userId=req.auth.userId;
-        const{courseId,rating}=req.body;
-        
-        if(!userId||!courseId||!rating||rating<1||rating>5)
-        {
-            return res.json({success:false,message:"Invalid Input"});
-        }
-        try {
-            const courseData=await Course.findById(courseId);
-            if(!courseData)
-            {
-                return res.json({success:false,message:"Course Not Found"});
-            }
-            const user=await User.findById(userId);
-            if(!user|| !user.enrolledCourses.includes(courseId))
-            {
-                return res.json({success:false,message:"User Not Enrolled in the Course"});
-            }
-            const existingRatingIndex=courseData.courseRatings.findIndex(r=>r.userid===userId);
-            if(existingRatingIndex!==-1)
-            {
-                courseData.courseRatings[existingRatingIndex].rating=rating;
-            }
-            else{
-                courseData.courseRatings.push({userid:userId,rating})
-            }
-            await courseData.save();
-            return res.json({success:true,message:"Rating Submitted Successfully"});
-        }
-        catch(error)
-        {
-            return res.json({success:false,message:error.message});
-        }
+  try {
+    const courseData = await Course.findById(courseId);
+    if (!courseData) return res.json({ success: false, message: "Course Not Found" });
+
+    const user = await User.findById(userId);
+    if (!user || !user.enrolledCourses.includes(courseId)) {
+      return res.json({ success: false, message: "User Not Enrolled in the Course" });
     }
+
+    const existingRatingIndex = courseData.courseRatings.findIndex(
+      r => r.userid.toString() === userId
+    );
+
+    if (existingRatingIndex !== -1) {
+      courseData.courseRatings[existingRatingIndex].rating = ratingValue;
+    } else {
+      courseData.courseRatings.push({ userid: userId, rating: ratingValue });
+    }
+
+    await courseData.save();
+    return res.json({ success: true, message: "Rating Submitted Successfully" });
+  } catch (error) {
+    return res.json({ success: false, message: error.message });
+  }
+};

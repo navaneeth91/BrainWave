@@ -13,6 +13,10 @@ import MyCourse from './pages/educator/MyCourse'
 import StudentsEnrolled from './pages/educator/StudentsEnrolled'
 import Navbar from './components/student/Navbar'
 import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import About from './components/student/about'
+import PrivacyPolicy from './components/student/PrivacyPolicy'
+import ContactUs from './components/student/Contactus'
 
 const App = () => {
   const  isEducatorRoute=useMatch('/educator/*');
@@ -23,6 +27,10 @@ const App = () => {
       
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+         <Route path="/contact" element={<ContactUs />} /> 
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+
         <Route path="/course-list" element={<CourseList />} />
         <Route path="/course-list/:input" element={<CourseList />} />
         <Route path="/course/:id" element={<CourseDetails />} />

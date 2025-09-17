@@ -29,7 +29,7 @@ import icon from './icon.png'
 import admin1 from './admin1.png'
 import admin2 from './admin2.png'
 import admin3 from './admin3.png'
-
+import about_illustration from './about_illustrate.png'
 
 export const assets = {
     logo,
@@ -62,7 +62,8 @@ export const assets = {
     patients_icon,
     play_icon,
     blue_tick_icon,
-    lesson_icon
+    lesson_icon,
+    about_illustration
 }
 export const dummyTestimonial = [
     {
