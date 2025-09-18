@@ -51,7 +51,7 @@ const MyCourse = () => {
                 courses.map((course)=>(
                 <tr key={course._id} className='border-b border-gray-500/20'>
                   <td className='md:px-4 p1-2 md:p1-4 py-3 flex items-center space-x-3 truncate'>
-                    <img src={course.courseThumbnail} alt=""  className='w-16'/>
+                    <img src={course.courseThumbnail} alt="course_thumbnail"  className='w-16'/>
                     <span className='truncate hidden md:block'>{course.courseTitle}</span>
                   </td>
                   <td className='px-4 py-3'> {currency}{Math.floor(course.enrolledStudents.length * (course.coursePrice -course.discount * course.coursePrice/100))}</td>

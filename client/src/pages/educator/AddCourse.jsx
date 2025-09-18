@@ -192,7 +192,7 @@ const AddCourse = () => {
           <div className='flex md:flex-row flex-col items-center gap-3'>
             <p> Course Thumbnail</p>
             <label htmlFor="thumbnailImage" className='flex items-center gap-3'>
-              <img src={assets.file_upload_icon} alt="" className='p-3 bg-blue-500 rounded' />
+              <img src={assets.file_upload_icon} alt="upload_icon" className='p-3 bg-blue-500 rounded' />
               <input type="file"  id="thumbnailImage" accept='image/*' onChange={e=>setImage(e.target.files[0])} hidden/>
               <img className='max-h-10' src={image?URL.createObjectURL(image):''} alt="" />
             </label>
@@ -210,12 +210,12 @@ const AddCourse = () => {
               <div key={chapterIndex} className='bg-white border rounded-lg mb-4'>
                   <div className='flex justify-between items-center p-4 border-b'>
                     <div className='flex items-center'>
-                      <img src={assets.dropdown_icon} width={14}  onClick={()=>handleChapter('toggle',chapter.chapterId)} />
+                      <img src={assets.dropdown_icon} width={14} alt='dropdown_icon' onClick={()=>handleChapter('toggle',chapter.chapterId)} />
                       <span className='font-semibold'>{chapterIndex+1}{chapter.chapterTitle}</span>
 
                     </div>
                     <span className='text-gray-500'>{chapter.chapterContent.length} Lectures</span>
-                    <img onClick={()=>handleChapter('remove',chapter.chapterId)} src={assets.cross_icon} alt=""  className='cursor-pointer'/>
+                    <img onClick={()=>handleChapter('remove',chapter.chapterId)} src={assets.cross_icon} alt="remove_icon" className='cursor-pointer'/>
 
                   </div>
                   {!chapter.collapsed &&(
@@ -224,7 +224,7 @@ const AddCourse = () => {
                         <div key={lectureIndex} className='flex justify-between items-center mb-2'>
 
                           <span>{lectureIndex+1}{lecture.lectureTitle}-{lecture.lectureDuration} mins - <a href={lecture.lectureUrl} target='_blank' className='text-blue-500'>Link</a> - {lecture.isPreviewFree?'FreePreview':'Paid'} </span>
-                          <img src={assets.cross_icon} alt="" className='cursor-pointer' onClick={()=>handleLecture('remove',chapter.chapterId,lectureIndex)} />
+                          <img src={assets.cross_icon} alt="remove_icon" className='cursor-pointer' onClick={()=>handleLecture('remove',chapter.chapterId,lectureIndex)} />
                         </div>
                       ))}
                       <div className='inline-flex bg-gray-100 p-2 rounded cursor-pointer mt-2' onClick={()=>handleLecture('add',chapter.chapterId)}>
@@ -275,7 +275,7 @@ const AddCourse = () => {
                           
                     </div>
                     <button type='button' className='w-full bg-orange-400 text-white px-4 py-2 rounded' onClick={addlecture}> ADD</button>
-                    <img onClick={()=>setShowPopup(false)} src={assets.cross_icon} alt="" className='absolute top-4 right-4 w-4 cursor-pointer' />
+                    <img onClick={()=>setShowPopup(false)} src={assets.cross_icon} alt="cross icon" className='absolute top-4 right-4 w-4 cursor-pointer' />
                 </div>
 
               </div>

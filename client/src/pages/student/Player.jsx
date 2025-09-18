@@ -167,7 +167,7 @@ const playerOptions = {
                   <div className="flex items-center gap-2">
                     <img
                       src={assets.down_arrow_icon}
-                      alt=""
+                      alt="dropdown_arrow"
                       className={`transform transition-transform ${
                         openSections[index] ? 'rotate-180' : ''
                       }`}
@@ -195,7 +195,7 @@ const playerOptions = {
                               ? assets.blue_tick_icon
                               : assets.play_icon
                           }
-                          alt=""
+                          alt="lecture_icon"
                           className="h-4 w-4 mt-1"
                         />
                         <div className="flex items-center justify-between w-full text-gray-800 text-xs md:text-default">

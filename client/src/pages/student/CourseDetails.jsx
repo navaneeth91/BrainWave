@@ -164,7 +164,7 @@ const CourseDetails = () => {
                     <div className="flex items-center gap-2">
                       <img
                         src={assets.down_arrow_icon}
-                        alt=""
+                        alt="dropdown_arrow"
                         className={`transform transition-transform ${
                           openSections[index] ? "rotate-180" : ""
                         }`}
@@ -193,7 +193,7 @@ const CourseDetails = () => {
                         >
                           <img
                             src={assets.play_icon}
-                            alt=""
+                            alt="play_icon"
                             className="h-4 w-4 mt-1"
                           />
                           <div className="flex items-center justify-between w-full text-gray-800 text-xs md:text-default">
@@ -254,7 +254,7 @@ const CourseDetails = () => {
               iframeClassName="w-full aspect-video"
             />
           ) : (
-            <img src={courseData.courseThumbnail} alt="" />
+            <img src={courseData.courseThumbnail} alt="course_thumbnail" />
           )}
           <div className="p-5">
             {/* Discount */}
@@ -262,7 +262,7 @@ const CourseDetails = () => {
               <img
                 className="w-3.5"
                 src={assets.time_left_clock_icon}
-                alt=""
+                alt="time_left_clock_icon"
               />
               <p className="text-red-500">
                 <span className="font-medium">5 days</span> left at this Price!
