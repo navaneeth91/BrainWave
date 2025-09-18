@@ -19,7 +19,7 @@ const SideBar = () => {
       {menuItems.map((item)=>(
         <NavLink to={item.path} key={item.name} end={item.path==='/educator'}
           className={({ isActive }) => `flex items-center md:flex-row flex-col md:justify-start justify-center py-3.5 md:px-10 gap-3 ${isActive? 'bg-orange-50 border-r-[6px] border-orange-500/90' : 'hover:bg-gray-100/90 border-r-[6px] border-white hover:border-gray-100/90' }`} >
-          <img src={item.icon} alt="" className='w-6 h-6' />
+          <img src={item.icon} alt="icon" className='w-6 h-6' />
           <p className='md:block hidden text-center'>{item.name}</p>
         </NavLink>
       ))}

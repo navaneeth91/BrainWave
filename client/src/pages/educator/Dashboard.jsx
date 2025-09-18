@@ -39,7 +39,7 @@ const Dashboard = () => {
       <div className='space-y-5'>
         <div className='flex flex-wrap gap-5 items-center'>
           <div className='flex items-center gap-3 shadow-card border border-orange-500 p-4 w-56 rounded-md'>
-            <img src={assets.patients_icon} alt="" />
+            <img src={assets.patients_icon} alt="patients_icon" />
             <div>
               <p className='text-2xl font-medium text-gray-600'>
                 {dashboardData.enrolledStudentsData.length}
@@ -50,7 +50,7 @@ const Dashboard = () => {
 
 
           <div className='flex items-center gap-3 shadow-card border border-orange-500 p-4 w-56 rounded-md'>
-            <img src={assets.appointments_icon} alt="" />
+            <img src={assets.appointments_icon} alt="appointments_icon" />
             <div>
               <p className='text-2xl font-medium text-gray-600'>
                 {dashboardData.totalCourses}
@@ -61,7 +61,7 @@ const Dashboard = () => {
 
 
         <div className='flex items-center gap-3 shadow-card border border-orange-500 p-4 w-56 rounded-md'>
-            <img src={assets.earning_icon} alt="" />
+            <img src={assets.earning_icon} alt="earning_icon" />
             <div>
               <p className='text-2xl font-medium text-gray-600'>
                 {currency} 

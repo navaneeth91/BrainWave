@@ -26,9 +26,9 @@ import lesson_icon from './lesson_icon.svg'
 import  logo from './logo_brain.svg'
 import favicon from './favicon.svg'
 import icon from './icon.png'
-import admin1 from './admin1.png'
-import admin2 from './admin2.png'
-import admin3 from './admin3.png'
+import admin1 from './admin1.avif'
+import admin2 from './admin2.avif'
+import admin3 from './admin3.avif'
 import about_illustration from './about_illustrate.png'
 
 export const assets = {
