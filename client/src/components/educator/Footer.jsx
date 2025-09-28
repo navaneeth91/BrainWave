@@ -10,10 +10,10 @@ const Footer = () => {
       <p className='py-4 text-center text-xs md:text-sm text-gray-500'>Copyright &copy; {new Date().getFullYear()} Brainwave. All rights reserved.</p>
     </div>
     <div className='flex items-center gap-3 max-md:mt-4'>
-      <a href="#">
+      <a href="https://www.facebook.com/silivery.navaneeth/">
         <img src={assets.facebook_icon} alt="facebook" />
       </a>
-       <a href="#">
+       <a href="https://x.com/navaneeth_02">
         <img src={assets.twitter_icon} alt="twitter" />
       </a>
        <a href="#">
