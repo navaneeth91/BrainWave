@@ -17,9 +17,18 @@ import 'react-toastify/dist/ReactToastify.css';
 import About from './components/student/about'
 import PrivacyPolicy from './components/student/PrivacyPolicy'
 import ContactUs from './components/student/Contactus'
-
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 const App = () => {
   const  isEducatorRoute=useMatch('/educator/*');
+   useEffect(() => {
+    AOS.init({
+      duration: 800,
+      offset: 50,
+      once: true,
+      easing: 'ease-out',
+    });
+  }, []);
   return (
     <div className='text-default min-h-screen bg-white'>
       <ToastContainer/>
