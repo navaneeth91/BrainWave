@@ -1,5 +1,5 @@
-import React from 'react'
-import { Routes,Route, useMatch ,useEffect} from 'react-router-dom'
+import React, { useEffect } from 'react'
+import { Routes,Route, useMatch } from 'react-router-dom'
 import Home from './pages/student/Home'
 import CourseList from './pages/student/CourseList'
 import CourseDetails from './pages/student/CourseDetails'
