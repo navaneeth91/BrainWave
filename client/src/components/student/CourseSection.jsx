@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import { Link } from 'react-router-dom'
 import { AppContext } from '../../context/AppContext'
 import CourseCard from './CourseCard'
-import AdBanner from "../components/AdBanner";
+import AdBanner from "../AdBanner";
 
 const CourseSection = () => {
   const {allCourses}=useContext(AppContext)
