@@ -7,6 +7,7 @@ import { assets } from '../../assets/assets';
 import Footer from '../../components/student/Footer';
 import AOS from "aos";
 import "aos/dist/aos.css";
+import AdBanner from "../components/AdBanner";
 
 const CourseList = () => {
   const { input } = useParams();
@@ -87,9 +88,11 @@ const CourseList = () => {
           ))
         )}
       </div>
+     
 
       
     </div>
+        <AdBanner />
     <Footer />
     </>
   );
