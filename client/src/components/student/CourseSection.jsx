@@ -2,6 +2,7 @@ import React, { useContext } from 'react'
 import { Link } from 'react-router-dom'
 import { AppContext } from '../../context/AppContext'
 import CourseCard from './CourseCard'
+import AdBanner from "../components/AdBanner";
 
 const CourseSection = () => {
   const {allCourses}=useContext(AppContext)
@@ -21,6 +22,7 @@ const CourseSection = () => {
       >
         Show all Courses
       </Link>
+       <AdBanner />
     </div>
   )
 }
