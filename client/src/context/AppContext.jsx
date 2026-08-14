@@ -1,4 +1,4 @@
-import { createContext,use,useEffect,useState } from "react";
+import { createContext,use,useEffect,useLayoutEffect,useState } from "react";
 import { useNavigate } from "react-router-dom";
 import humanizeDuration from "humanize-duration";
 export const AppContext = createContext();
@@ -39,10 +39,8 @@ export const AppContextProvider = (props)=>{
 
     //fetch user data
     const fetchUserData = async () => {
-        if(user.publicMetadata.role==='educator' ){ 
-            setIsEducator(true);
-        }
         try {
+            setIsEducator(user?.publicMetadata?.role === 'educator');
             const token=await getToken();
             const {data}=await axios.get(backendUrl+'/api/user/data', {
                 headers: {
@@ -103,6 +101,36 @@ export const AppContextProvider = (props)=>{
         toast.error(error.message);
     }
 }
+// Generate course certificate
+const generateCertificate = async (courseId) => {
+    try {
+        const token = await getToken();
+
+        const { data } = await axios.post(
+            `${backendUrl}/api/user/generate-certificate/${courseId}`,
+            {},
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
+
+        if (data.success) {
+            toast.success(data.message);
+            return data.certificate;
+        } else {
+            toast.error(data.message);
+            return null;
+        }
+
+    } catch (error) {
+        toast.error(
+            error.response?.data?.message || error.message
+        );
+        return null;
+    }
+};
     //function to calculate no of lectures in course
     const calculateNoofLectures = (course) => {
     let totalLectures = 0;
@@ -119,7 +147,7 @@ export const AppContextProvider = (props)=>{
         fetchEnrolledCourses();
     }
   },[user,getToken])
-    useEffect(() => {
+    useLayoutEffect(() => {
         fetchAllCourses();
         
     }, []);
@@ -142,7 +170,7 @@ export const AppContextProvider = (props)=>{
         fetchEnrolledCourses,
         fetchAllCourses,
         getToken,
-
+        generateCertificate
     }
     return(
         <AppContext.Provider value={value}>

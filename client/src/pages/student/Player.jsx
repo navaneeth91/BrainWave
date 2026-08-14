@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams,useNavigate } from 'react-router-dom';
 import { AppContext } from '../../context/AppContext';
 import { assets } from '../../assets/assets';
 import humanizeDuration from 'humanize-duration';
@@ -12,15 +12,16 @@ import Loading from '../../components/student/Loading';
 
 const Player = () => {
   const {
-    enrolledCourses,
-    calculateChapterTime,
-    backendUrl,
-    getToken,
-    userData,
-    fetchEnrolledCourses,
-  } = useContext(AppContext);
-
+  enrolledCourses,
+  calculateChapterTime,
+  backendUrl,
+  getToken,
+  userData,
+  fetchEnrolledCourses,
+  generateCertificate,
+} = useContext(AppContext);
   const { courseId } = useParams();
+  const navigate = useNavigate();
   const [progressData, setProgressData] = useState(null);
   const [initialRating, setInitialRating] = useState(0);
   const [courseData, setCourseData] = useState(null);
@@ -48,45 +49,68 @@ const Player = () => {
     }
   }, [enrolledCourses]);
 
-  const markLectureAsComplete = async (lectureId) => {
-    try {
-      const token = await getToken();
-      const { data } = await axios.post(
-        backendUrl + '/api/user/update-course-progress',
-        { courseId, lectureId },
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
+ const markLectureAsComplete = async (lectureId) => {
+  try {
+    const token = await getToken();
 
-      if (data.success) {
-        toast.success(data.message);
-        getCourseProgress();
-      } else {
-        toast.error(data.message);
+    const { data } = await axios.post(
+      backendUrl + '/api/user/update-course-progress',
+      { courseId, lectureId },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       }
-    } catch (error) {
-      toast.error(error.message);
-    }
-  };
+    );
 
-  const getCourseProgress = async () => {
-    try {
-      const token = await getToken();
-      const { data } = await axios.post(
-        backendUrl + '/api/user/get-course-progress',
-        { courseId },
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
-      if (data.success) {
-        setProgressData(
-          data.progressData
-        )
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      toast.error(error.message);
+    if (data.success) {
+      toast.success(data.message);
+
+      // Refresh course progress
+      await getCourseProgress();
+
+      // Check if the course is now completed
+      if (data.completed) {
+    toast.success("🎉 Congratulations! You completed the course!");
+
+    const certificate = await generateCertificate(courseId);
+
+    if (certificate) {
+        toast.success("Certificate generated successfully!");
     }
-  };
+}
+    } else {
+      toast.error(data.message);
+    }
+
+  } catch (error) {
+    toast.error(error.message);
+  }
+};
+const getCourseProgress = async () => {
+  try {
+    const token = await getToken();
+
+    const { data } = await axios.get(
+      `${backendUrl}/api/user/course-progress/${courseId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
+    if (data.success) {
+      setProgressData(data.progressData);
+    } else {
+      toast.error(data.message);
+    }
+
+  } catch (error) {
+    console.error("Error fetching course progress:", error);
+    toast.error(error.message);
+  }
+};
 const handleRate = async (rating) => {
   try {
     const token = await getToken();
@@ -123,9 +147,8 @@ const handleRate = async (rating) => {
       [index]: !prev[index],
     }));
   };
-  const completedLectures = progressData && progressData.completedLectures
-  ? progressData.completedLectures
-  : [];
+const completedLectures =
+  progressData?.lectureCompleted || [];
 
   const getYouTubeVideoId = (url) => {
   const regExp = /(?:youtube\.com\/.*v=|youtu\.be\/)([^&?/]+)/;
