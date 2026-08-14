@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 
 export const AppContextProvider = (props)=>{
     const backendUrl=import.meta.env.VITE_BACKEND_URL
+    const freeCoursesMode = import.meta.env.VITE_FREE_COURSES_MODE !== 'false';
     const [allCourses, setAllCourses] = useState([])
 
     const [isEducator, setIsEducator] = useState(false)
@@ -164,6 +165,7 @@ const generateCertificate = async (courseId) => {
         setenrolledCourses,
         enrolledCourses,
         backendUrl,
+        freeCoursesMode,
         userData,
         setUserData,
         fetchUserData,

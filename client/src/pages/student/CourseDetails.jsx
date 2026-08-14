@@ -27,6 +27,7 @@ const CourseDetails = () => {
     backendUrl,
     userData,
     getToken,
+    freeCoursesMode,
   } = useContext(AppContext);
 
   const fetchCourseData = async () => {
@@ -265,26 +266,34 @@ const CourseDetails = () => {
                 alt="time_left_clock_icon"
               />
               <p className="text-red-500">
-                <span className="font-medium">5 days</span> left at this Price!
+                <span className="font-medium">
+                  {freeCoursesMode ? 'Free' : '5 days'}
+                </span>{' '}
+                {freeCoursesMode ? 'access is available temporarily' : 'left at this Price!'}
               </p>
             </div>
 
             {/* Pricing */}
             <div className="flex gap-3 items-center pt-2">
               <p className="text-gray-800 md:text-4xl text-2xl font-semibold">
-                {currency}
-                {(
-                  courseData.coursePrice -
-                  (courseData.discount * courseData.coursePrice) / 100
-                ).toFixed(2)}
+                {freeCoursesMode
+                  ? 'Free'
+                  : `${currency}${(
+                      courseData.coursePrice -
+                      (courseData.discount * courseData.coursePrice) / 100
+                    ).toFixed(2)}`}
               </p>
-              <p className="md:text-lg text-gray-500 line-through">
-                {currency}
-                {courseData.coursePrice}
-              </p>
-              <p className="md:text-lg text-gray-500">
-                {courseData.discount}% off
-              </p>
+              {!freeCoursesMode && (
+                <>
+                  <p className="md:text-lg text-gray-500 line-through">
+                    {currency}
+                    {courseData.coursePrice}
+                  </p>
+                  <p className="md:text-lg text-gray-500">
+                    {courseData.discount}% off
+                  </p>
+                </>
+              )}
             </div>
 
             {/* Stats */}
@@ -311,7 +320,11 @@ const CourseDetails = () => {
               className="md:mt-6 mt-4 w-full py-3 rounded bg-orange-600 text-white font-medium hover:bg-orange-700 transition"
               data-aos="zoom-in"
             >
-              {isAlreadyEnrolled ? "Already Enrolled" : "Enroll Now"}
+              {isAlreadyEnrolled
+                ? "Already Enrolled"
+                : freeCoursesMode
+                  ? "Enroll Free"
+                  : "Enroll Now"}
             </button>
 
             {/* What's in the Course */}
