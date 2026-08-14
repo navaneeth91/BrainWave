@@ -4,12 +4,14 @@ import { AppContext } from '../../context/AppContext'
 import { Link } from 'react-router-dom'
 
 const CourseCard = ({ course, index = 0 }) => {
-  const { currency, calculateRating } = useContext(AppContext)
+  const { currency, calculateRating, freeCoursesMode } = useContext(AppContext)
   const rating = calculateRating(course)
 
   const discountedPrice = (
     course.coursePrice - (course.discount * course.coursePrice) / 100
   ).toFixed(2)
+  const displayPrice = freeCoursesMode ? 'Free' : `${currency}${discountedPrice}`
+  const originalPrice = `${currency}${course.coursePrice.toFixed(2)}`
 
   return (
 <Link
@@ -52,12 +54,12 @@ const CourseCard = ({ course, index = 0 }) => {
 
     {/* Price */}
     <p className="text-base font-semibold text-gray-600 mt-2">
-      {course.discount > 0 && (
+      {!freeCoursesMode && course.discount > 0 && (
         <span className="line-through text-gray-400 mr-2">
-          {currency}{course.coursePrice.toFixed(2)}
+          {originalPrice}
         </span>
       )}
-      {currency}{discountedPrice}
+      {displayPrice}
     </p>
   </div>
 </Link>

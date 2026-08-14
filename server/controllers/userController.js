@@ -4,6 +4,7 @@ import User from "../models/User.js";
 import Purchase from "../models/Purchase.js";
 import CourseProgress from "../models/CourseProgress.js";
 import Certificate from "../models/Certificate.js";
+const freeCoursesMode = process.env.FREE_COURSES_MODE !== 'false';
 export const getUserData = async(req,res)=>{
     try {
         const userId = req.auth.userId;
@@ -40,13 +41,41 @@ export const purchaseCourse=async(req,res)=>{
         const {origin}=req.headers;
         const userData=await User.findById(userId);
         const courseData=await Course.findById(courseId); 
-        console.log("purchaseCourse body:", req.body);
-        console.log("User Data:", userData);
-        console.log("Course Data:", courseData);
         if(!userData || !courseData)
         {
             return res.json({success:false,message:"User or Course Not Found"})
         }
+
+        const alreadyEnrolled = userData.enrolledCourses.some(
+            (enrolledCourseId) => enrolledCourseId.toString() === courseData._id.toString()
+        );
+        if (alreadyEnrolled) {
+            return res.json({
+                success: true,
+                sessionUrl: `${origin}/loading/my-enrollments`
+            });
+        }
+
+        if (freeCoursesMode) {
+            await Purchase.create({
+                courseId: courseData._id,
+                userId,
+                amount: 0,
+                status: 'Completed',
+            });
+
+            courseData.enrolledStudents.push(userData._id);
+            await courseData.save();
+
+            userData.enrolledCourses.push(courseData._id);
+            await userData.save();
+
+            return res.json({
+                success: true,
+                sessionUrl: `${origin}/loading/my-enrollments`
+            });
+        }
+
         const purchaseData={
             courseId:courseData._id,
             userId,
