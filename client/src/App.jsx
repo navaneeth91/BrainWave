@@ -20,7 +20,9 @@ import PrivacyPolicy from './components/student/PrivacyPolicy'
 import ContactUs from './components/student/Contactus'
 import Certificate from "./pages/student/Certificate";
 import VerifyCertificate from "./pages/student/VerifyCertificate";
-
+import Exam from './pages/student/Exam';
+import ExamResult from "./pages/student/ExamResult";
+import ManageExam from './pages/educator/ManageExam';
 const App = () => {
   const  isEducatorRoute=useMatch('/educator/*');
   return (
@@ -38,6 +40,10 @@ const App = () => {
   path="/certificate/:certificateId"
   element={<Certificate />}
 />
+<Route
+  path="/educator/course/:courseId/exam"
+  element={<ManageExam />}
+/>
 
 <Route
   path="/certificate/course/:courseId"
@@ -46,6 +52,14 @@ const App = () => {
 <Route
   path="/verify-certificate/:certificateId"
   element={<VerifyCertificate />}
+/>
+<Route
+  path="/student/exam/:examId"
+  element={<Exam />}
+/>
+<Route
+  path="/student/exam-result/:attemptId"
+  element={<ExamResult />}
 />
         <Route path="/course-list/:input" element={<CourseList />} />
         <Route path="/course/:id" element={<CourseDetails />} />

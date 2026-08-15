@@ -1,37 +1,55 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from "react";
 
-const Rating = ({ initialrating, onrate }) => {
-  const [rating, setRating] = useState(initialrating || 0);
+const Rating = ({ initialrating = 0, onrate }) => {
+  const [rating, setRating] = useState(initialrating);
+
+  useEffect(() => {
+    setRating(initialrating ?? 0);
+  }, [initialrating]);
 
   const handleRating = (value) => {
     setRating(value);
+
     if (onrate) {
       onrate(value);
     }
   };
 
-  useEffect(() => {
-    if (initialrating !== undefined) {
-      setRating(initialrating);
-    }
-  }, [initialrating]);
-
   return (
-    <div>
+    <div className="flex items-center gap-1">
       {Array.from({ length: 5 }, (_, index) => {
         const starValue = index + 1;
+        const isActive = starValue <= rating;
+
         return (
-          <span
-            key={index}
-            className={`text-xl sm:text-2xl cursor-pointer transition-colors ${
-              starValue <= rating ? 'text-yellow-500' : 'text-gray-400'
-            }`}
+          <button
+            key={starValue}
+            type="button"
             onClick={() => handleRating(starValue)}
+            aria-label={`Rate ${starValue} out of 5`}
+            className={`
+              text-xl sm:text-2xl
+              leading-none
+              transition-all duration-200
+              hover:scale-125
+              focus:outline-none
+              ${
+                isActive
+                  ? "text-orange-500 drop-shadow-sm"
+                  : "text-gray-300 hover:text-orange-300"
+              }
+            `}
           >
-            &#9733;
-          </span>
+            ★
+          </button>
         );
       })}
+
+      {rating > 0 && (
+        <span className="ml-2 text-sm font-medium text-gray-500">
+          {rating}/5
+        </span>
+      )}
     </div>
   );
 };

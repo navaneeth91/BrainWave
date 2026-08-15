@@ -1,4 +1,4 @@
-import { createContext,use,useEffect,useLayoutEffect,useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import humanizeDuration from "humanize-duration";
 export const AppContext = createContext();
@@ -12,7 +12,7 @@ export const AppContextProvider = (props)=>{
     const backendUrl=import.meta.env.VITE_BACKEND_URL
     const freeCoursesMode = import.meta.env.VITE_FREE_COURSES_MODE !== 'false';
     const [allCourses, setAllCourses] = useState([])
-
+    const [coursesLoading, setCoursesLoading] = useState(true)
     const [isEducator, setIsEducator] = useState(false)
     const [enrolledCourses, setenrolledCourses] = useState([])
     const [userData, setUserData] = useState(null)
@@ -24,20 +24,39 @@ export const AppContextProvider = (props)=>{
     const{user}=useUser()
 
     //fetch alla courses
-    const fetchAllCourses = async () => {
-        try {
-            const {data}=await axios.get(backendUrl+'/api/course/all');
-            if(data.success){
-            setAllCourses(data.courses);
-            }
-            else{
-                 toast.error(data.message);
-            }
-        } catch (error) {
-            toast.error(error.message)
-        }
-    }
+   const fetchAllCourses = async () => {
+    try {
+        setCoursesLoading(true);
 
+        console.log("Fetching courses...");
+
+        const { data } = await axios.get(
+            backendUrl + '/api/course/all'
+        );
+
+        console.log("Course API response:", data);
+
+        if (data.success) {
+            console.log("Courses received:", data.courses);
+
+            setAllCourses(data.courses || []);
+        } else {
+            console.log("Course API failed:", data.message);
+
+            toast.error(data.message);
+            setAllCourses([]);
+        }
+
+    } catch (error) {
+        console.error("Course API error:", error);
+
+        toast.error(error.message);
+        setAllCourses([]);
+
+    } finally {
+        setCoursesLoading(false);
+    }
+};
     //fetch user data
     const fetchUserData = async () => {
         try {
@@ -132,8 +151,35 @@ const generateCertificate = async (courseId) => {
         return null;
     }
 };
-    //function to calculate no of lectures in course
-    const calculateNoofLectures = (course) => {
+
+// Fetch published exam for a course
+const fetchCourseExam = async (courseId) => {
+    try {
+        const token = await getToken();
+
+        const { data } = await axios.get(
+            `${backendUrl}/api/course/${courseId}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
+
+        if (data.success) {
+            return data.exam || null;
+        }
+
+        return null;
+
+    } catch (error) {
+        console.error("Error fetching course exam:", error);
+        return null;
+    }
+};
+
+//function to calculate no of lectures in course
+const calculateNoofLectures = (course) => {
     let totalLectures = 0;
     course.courseContent.forEach((chapter) => {
         if (Array.isArray(chapter.chapterContent)) {
@@ -142,20 +188,23 @@ const generateCertificate = async (courseId) => {
     });
     return totalLectures;
 };
-  useEffect(()=>{
+
+useEffect(()=>{
     if(user){
         fetchUserData();
         fetchEnrolledCourses();
     }
   },[user,getToken])
-    useLayoutEffect(() => {
-        fetchAllCourses();
-        
-    }, []);
+
+useEffect(() => {
+    fetchAllCourses();
+}, []);
+
     const value={
         currency,
         allCourses,
         navigate,
+        coursesLoading,
         calculateRating,
         isEducator,
         setIsEducator,
@@ -172,7 +221,8 @@ const generateCertificate = async (courseId) => {
         fetchEnrolledCourses,
         fetchAllCourses,
         getToken,
-        generateCertificate
+        generateCertificate,
+        fetchCourseExam
     }
     return(
         <AppContext.Provider value={value}>
