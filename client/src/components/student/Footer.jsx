@@ -1,54 +1,180 @@
-import React from 'react';
-import { assets } from '../../assets/assets';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { assets } from "../../assets/assets";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
-    <footer className='bg-gradient-to-r from-orange-100 via-orange-200 to-orange-100 md:px-36 text-left w-full mt-10'>
-      <div className='flex flex-col md:flex-row items-start px-8 md:px-0 justify-center gap-10 md:gap-32 py-10 border-b border-orange-300'>
-        {/* Logo and Description */}
-        <div className='flex flex-col md:items-start items-center w-full'>
-          <img src={assets.logo} alt="Logo" className="w-40 h-auto lg:w-44 cursor-pointer" />
-          <p className='mt-6 text-center md:text-left text-sm text-gray-800'>
-            Learn anything, anytime, anywhere with Brainwave. Empower your learning journey with expert content and flexible access.
-          </p>
-        </div>
+    <footer className="bg-gray-950 text-white mt-20">
 
-        {/* Company Links */}
-        <div className='flex flex-col md:items-start items-center w-full'>
-          <h2 className='font-semibold text-gray-900 mb-5'>Company</h2>
-          <ul className='flex md:flex-col w-full justify-between text-sm text-gray-700 md:space-y-2'>
-            <li><a href='#'>Home</a></li>
-            <li><Link to='/about'>About Us</Link></li>
-            <li> <Link to="/contact">Contact Us</Link></li>
-            <li><Link to="/privacy-policy" className="text-gray-500 hover:text-gray-800">Privacy Policy</Link>
-</li>
-          </ul>
-        </div>
+      {/* Main Footer */}
+      <div className="max-w-7xl mx-auto px-6 md:px-10 lg:px-16 py-14">
 
-        {/* Newsletter */}
-        <div className='hidden md:flex flex-col items-start w-full'>
-          <h2 className='font-semibold text-gray-900 mb-5'>Subscribe to our newsletter</h2>
-          <p className='text-sm text-gray-700'>
-            The latest news, articles, and resources, sent to your inbox weekly.
-          </p>
-          <div className='flex items-center gap-2 pt-4'>
-            <input
-              type="email"
-              placeholder='Enter your email'
-              className='border border-orange-300 bg-orange-100 text-gray-800 placeholder-gray-500 outline-none w-64 h-9 rounded px-2 text-sm'
-            />
-            <button className='bg-orange-500 w-24 h-9 text-white rounded-md hover:bg-orange-600 transition duration-300'>
-              Subscribe
-            </button>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-16">
+
+          {/* ================= BRAND ================= */}
+          <div className="lg:col-span-2">
+
+            <Link to="/" className="inline-block">
+              <img
+                src={assets.logo}
+                alt="BrainWave"
+                className="w-40 md:w-48 h-auto object-contain"
+              />
+            </Link>
+
+            <p className="mt-5 max-w-md text-sm md:text-base text-gray-400 leading-7">
+              Learn anything, anytime, anywhere with BrainWave.
+              Build practical skills, expand your knowledge, and
+              take the next step in your learning journey.
+            </p>
+
+            {/* Small trust indicators */}
+            <div className="flex flex-wrap gap-5 mt-7 text-sm text-gray-400">
+
+              <div className="flex items-center gap-2">
+                <span className="text-orange-400">✓</span>
+                Practical Learning
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-orange-400">✓</span>
+                Learn at Your Pace
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-orange-400">✓</span>
+                Earn Certificates
+              </div>
+
+            </div>
+
           </div>
+
+          {/* ================= COMPANY ================= */}
+          <div>
+
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-white mb-5">
+              Company
+            </h2>
+
+            <ul className="space-y-3 text-sm text-gray-400">
+
+              <li>
+                <Link
+                  to="/"
+                  className="hover:text-orange-400 transition"
+                >
+                  Home
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  to="/about"
+                  className="hover:text-orange-400 transition"
+                >
+                  About Us
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  to="/contact"
+                  className="hover:text-orange-400 transition"
+                >
+                  Contact Us
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  to="/privacy-policy"
+                  className="hover:text-orange-400 transition"
+                >
+                  Privacy Policy
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  to="/course-list"
+                  className="hover:text-orange-400 transition"
+                >
+                  Browse Courses
+                </Link>
+              </li>
+
+            </ul>
+
+          </div>
+
+          {/* ================= NEWSLETTER ================= */}
+          <div>
+
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-white mb-5">
+              Stay Updated
+            </h2>
+
+            <p className="text-sm text-gray-400 leading-6">
+              Get the latest courses, learning resources, and
+              BrainWave updates directly in your inbox.
+            </p>
+
+            <div className="mt-5 flex flex-col gap-3">
+
+              <input
+                type="email"
+                placeholder="Enter your email"
+                className="w-full h-11 px-4 rounded-lg bg-gray-900 border border-gray-800 text-sm text-white placeholder-gray-500 outline-none focus:border-orange-500 transition"
+              />
+
+              <button
+                className="w-full h-11 bg-orange-600 hover:bg-orange-700 text-white text-sm font-semibold rounded-lg transition duration-200"
+              >
+                Subscribe
+              </button>
+
+            </div>
+
+          </div>
+
         </div>
+
+        {/* ================= DIVIDER ================= */}
+        <div className="border-t border-gray-800 mt-12 pt-7">
+
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+
+            <p className="text-xs md:text-sm text-gray-500 text-center md:text-left">
+              © {new Date().getFullYear()} BrainWave. All rights reserved.
+            </p>
+
+            <div className="flex items-center gap-5 text-xs md:text-sm text-gray-500">
+
+              <Link
+                to="/privacy-policy"
+                className="hover:text-gray-300 transition"
+              >
+                Privacy
+              </Link>
+
+              <span className="w-1 h-1 rounded-full bg-gray-700" />
+
+              <Link
+                to="/contact"
+                className="hover:text-gray-300 transition"
+              >
+                Support
+              </Link>
+
+            </div>
+
+          </div>
+
+        </div>
+
       </div>
 
-      {/* Copyright */}
-      <p className='py-4 text-center text-xs md:text-sm text-gray-600'>
-        Copyright &copy; {new Date().getFullYear()} Brainwave. All rights reserved.
-      </p>
     </footer>
   );
 };
