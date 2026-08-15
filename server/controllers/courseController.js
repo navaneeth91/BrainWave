@@ -1,4 +1,5 @@
 import Course from "../models/Course.js";
+import Exam from "../models/Exam.js";
 
 //getAll Courses
 
@@ -11,25 +12,48 @@ export const getAllCourses = async (req, res) => {
     }
 }
 
-
-
 //get Course bny id
 
+export const getCourseId = async (req, res) => {
+    const { id } = req.params;
 
-export const getCourseId=async(req,res)=>{
-    const{id}=req.params
     try {
-        const courseData =await Course.findById(id).populate({path:'educator'})
-        courseData.courseContent.forEach(chapter=>{
-            chapter.chapterContent.forEach(lecture=>{
-                if(!lecture.isPreviewFree)
-                {
-                    lecture.lectureUrl="";
+        const courseData = await Course.findById(id).populate({
+            path: "educator"
+        });
+
+        if (!courseData) {
+            return res.json({
+                success: false,
+                message: "Course not found"
+            });
+        }
+
+        const exam = await Exam.findOne({
+            courseId: id,
+            isPublished: true
+        }).select(
+            "title description passingScore timeLimit maxAttempts isPublished"
+        );
+
+        courseData.courseContent.forEach(chapter => {
+            chapter.chapterContent.forEach(lecture => {
+                if (!lecture.isPreviewFree) {
+                    lecture.lectureUrl = "";
                 }
-            })
-        })
-        res.json({success:true,courseData})
+            });
+        });
+
+        res.json({
+            success: true,
+            courseData,
+            exam
+        });
+
     } catch (error) {
-        res.json({success:false,message:error.message})
+        res.json({
+            success: false,
+            message: error.message
+        });
     }
-}
+};

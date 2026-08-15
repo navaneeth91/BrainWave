@@ -4,6 +4,8 @@ import User from "../models/User.js";
 import Purchase from "../models/Purchase.js";
 import CourseProgress from "../models/CourseProgress.js";
 import Certificate from "../models/Certificate.js";
+import Exam from "../models/Exam.js";
+import ExamAttempt from "../models/ExamAttempt.js";
 const freeCoursesMode = process.env.FREE_COURSES_MODE !== 'false';
 export const getUserData = async(req,res)=>{
     try {
@@ -328,98 +330,187 @@ export const addUserRating = async (req, res) => {
 };
 // GENERATE COURSE CERTIFICATE
 export const generateCertificate = async (req, res) => {
-    try {
-        const userId = req.auth.userId;
-        const { courseId } = req.params;
-        // Get logged-in user's details
-        const user = await User.findById(userId);
+  try {
+    const { courseId } = req.params;
+    const userId = req.auth?.userId;
 
-        if (!user) {
-            return res.json({
-                success: false,
-                message: "User not found"
-            });
-        }
-        // Find the course
-        const course = await Course.findById(courseId);
-
-        if (!course) {
-            return res.json({
-                success: false,
-                message: "Course not found"
-            });
-        }
-
-        // Find student's course progress
-        const progress = await CourseProgress.findOne({
-            userId,
-            courseId
-        });
-
-        if (!progress) {
-            return res.json({
-                success: false,
-                message: "Course progress not found"
-            });
-        }
-
-        // Check whether course is completed
-        if (!progress.completed) {
-            return res.json({
-                success: false,
-                message: "Complete the course before generating the certificate"
-            });
-        }
-
-        // Check if certificate already exists
-        const existingCertificate = await Certificate.findOne({
-            userId,
-            courseId
-        });
-
-        if (existingCertificate) {
-            return res.json({
-                success: true,
-                message: "Certificate already generated",
-                certificate: existingCertificate
-            });
-        }
-
-        // Generate unique certificate ID
-        const certificateId =
-            "BW-" +
-            Date.now().toString(36).toUpperCase();
-
-        // Generate verification code
-        const verificationCode =
-            Math.random().toString(36).substring(2, 10).toUpperCase();
-
-        // Create certificate
-        const certificate = await Certificate.create({
-            certificateId,
-            userId,
-            courseId,
-            studentName: user.name,
-            courseTitle: course.courseTitle,
-            educatorName: "BrainWave",
-            issuedAt: new Date(),
-            verificationCode
-        });
-
-        return res.json({
-            success: true,
-            message: "Certificate generated successfully",
-            certificate
-        });
-
-    } catch (error) {
-        return res.json({
-            success: false,
-            message: error.message
-        });
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated",
+      });
     }
-};
 
+    // =========================================
+    // 1. CHECK COURSE
+    // =========================================
+
+    const course = await Course.findById(courseId);
+
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: "Course not found",
+      });
+    }
+
+    // =========================================
+    // 2. CHECK COURSE COMPLETION
+    // =========================================
+
+    const progress = await CourseProgress.findOne({
+      userId,
+      courseId,
+    });
+
+    if (!progress || !progress.completed) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Please complete the course before generating the certificate",
+      });
+    }
+
+    // =========================================
+    // 3. CHECK FINAL EXAM
+    // =========================================
+
+    const exam = await Exam.findOne({
+      courseId,
+      isPublished: true,
+    });
+
+    if (!exam) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "Final exam is not available for this course",
+      });
+    }
+
+    // =========================================
+    // 4. CHECK PASSED EXAM ATTEMPT
+    // =========================================
+
+    const passedAttempt = await ExamAttempt.findOne({
+      userId,
+      examId: exam._id,
+      passed: true,
+    }).sort({
+      completedAt: -1,
+    });
+
+    if (!passedAttempt) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "You must pass the final exam before receiving the certificate",
+      });
+    }
+
+    // =========================================
+    // 5. CHECK EXISTING CERTIFICATE
+    // =========================================
+
+    const existingCertificate =
+      await Certificate.findOne({
+        userId,
+        courseId,
+      });
+
+    if (existingCertificate) {
+      return res.status(200).json({
+        success: true,
+        message: "Certificate already exists",
+        certificate: existingCertificate,
+      });
+    }
+
+    // =========================================
+    // 6. GET USER
+    // =========================================
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // =========================================
+    // 7. GENERATE CERTIFICATE ID
+    // =========================================
+
+    const certificateId =
+      `CERT-${Date.now()}-${Math.floor(
+        1000 + Math.random() * 9000
+      )}`;
+
+    // =========================================
+    // 8. GENERATE VERIFICATION CODE
+    // =========================================
+
+    const verificationCode =
+      `VERIFY-${Math.random()
+        .toString(36)
+        .substring(2, 10)
+        .toUpperCase()}`;
+
+    // =========================================
+    // 9. CREATE CERTIFICATE
+    // =========================================
+
+    const certificate =
+      await Certificate.create({
+        certificateId,
+        userId,
+        courseId,
+
+        studentName:
+          user.name ||
+          user.fullName ||
+          "Student",
+
+        courseTitle:
+          course.courseTitle,
+
+        ceoName:
+          "Navaneeth Siliveri",
+
+        ceoSignature:
+          "",
+
+        issuedAt: new Date(),
+
+        verificationCode,
+      });
+
+    // =========================================
+    // 10. RESPONSE
+    // =========================================
+
+    return res.status(201).json({
+      success: true,
+      message:
+        "Certificate generated successfully",
+
+      certificate,
+    });
+
+  } catch (error) {
+    console.error(
+      "Generate certificate error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 // GET COURSE CERTIFICATE
 export const getCertificate = async (req, res) => {
     try {
