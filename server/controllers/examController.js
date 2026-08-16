@@ -4,8 +4,9 @@ import ExamAttempt from "../models/ExamAttempt.js";
 import User from "../models/User.js";
 import CourseProgress from "../models/CourseProgress.js";
 import Course from "../models/Course.js";
+import { getIdentityCandidates } from "../utils/authIdentity.js";
 
-const verifyExamOwnership = async (examId, educatorId) => {
+const verifyExamOwnership = async (examId, user) => {
   const exam = await Exam.findById(examId);
 
   if (!exam) {
@@ -18,7 +19,8 @@ const verifyExamOwnership = async (examId, educatorId) => {
     };
   }
 
-  if (exam.educatorId !== educatorId) {
+  const candidates = getIdentityCandidates(user);
+  if (!candidates.includes(exam.educatorId)) {
     return {
       exam: null,
       error: {
@@ -208,7 +210,8 @@ const {
       });
     }
 
-    if (course.educator !== educatorId) {
+    const candidates = getIdentityCandidates(req.auth?.user);
+    if (!candidates.includes(course.educator)) {
       return res.status(403).json({
         success: false,
         message:
@@ -293,7 +296,8 @@ export const addExamQuestion = async (req, res) => {
     });
     }
 
-    if (exam.educatorId !== educatorId) {
+    const candidates = getIdentityCandidates(req.auth?.user);
+    if (!candidates.includes(exam.educatorId)) {
     return res.status(403).json({
         success: false,
         message: "You are not authorized to add questions to this exam",
@@ -663,10 +667,7 @@ export const getExamForEducator = async (req, res) => {
         });
     }
 
-    const { exam, error } = await verifyExamOwnership(
-        examId,
-        educatorId
-    );
+    const { exam, error } = await verifyExamOwnership(examId, req.auth?.user);
 
     if (error) {
         return res.status(error.status).json({
@@ -718,8 +719,8 @@ export const updateExamQuestion = async (req, res) => {
       });
     }
     const { exam, error } = await verifyExamOwnership(
-    examId,
-    educatorId
+      question.examId,
+      req.auth?.user
     );
 
     if (error) {
@@ -782,8 +783,8 @@ export const deleteExamQuestion = async (req, res) => {
     }
 
     const { exam, error } = await verifyExamOwnership(
-    question.examId,
-    educatorId
+      question.examId,
+      req.auth?.user
     );
 
     if (error) {
@@ -827,10 +828,7 @@ export const toggleExamPublish = async (req, res) => {
             message: "Educator not authenticated",
         });
     }
-    const { exam, error } = await verifyExamOwnership(
-        examId,
-        educatorId
-    );
+    const { exam, error } = await verifyExamOwnership(examId, req.auth?.user);
 
     if (error) {
         return res.status(error.status).json({
@@ -957,17 +955,9 @@ export const getEducatorExams = async (req, res) => {
       });
     }
 
-  const educatorId = req.auth?.userId;
-
-    if (!educatorId) {
-        return res.status(401).json({
-            success: false,
-            message: "Educator not authenticated",
-        });
-    }
-
+    const identityCandidates = getIdentityCandidates(req.auth?.user);
     const exams = await Exam.find({
-     educatorId,
+      educatorId: { $in: identityCandidates },
     })
     .populate("courseId", "courseTitle courseThumbnail")
     .sort({ createdAt: -1 })

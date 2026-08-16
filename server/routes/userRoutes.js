@@ -1,50 +1,117 @@
-import express from 'express'
+import express from "express";
+
 import {
-    addUserRating,
-    getCourseProgress,
     getUserData,
+    userEnrolledCourses,
     purchaseCourse,
     updateCourseProgress,
-    userEnrolledCourses,
+    getCourseProgress,
+    addUserRating,
     generateCertificate,
     getCertificate,
     getUserCertificates,
     getCertificateById,
-    verifyCertificate
-} from '../controllers/userController.js';
-const userRouter = express.Router()
+    verifyCertificate,
+} from "../controllers/userController.js";
 
-userRouter.get('/data', getUserData)
-userRouter.get('/data/enrolled-courses', userEnrolledCourses);
-userRouter.post('/purchase', purchaseCourse)
-userRouter.post('/update-course-progress',updateCourseProgress)
+import { protect } from "../middlewares/authMiddleware.js";
+
+const userRouter = express.Router();
+
+
+// =====================================================
+// USER
+// =====================================================
+
+userRouter.get(
+    "/data",
+    protect,
+    getUserData
+);
+
+userRouter.get(
+    "/data/enrolled-courses",
+    protect,
+    userEnrolledCourses
+);
+
+
+// =====================================================
+// PURCHASE
+// =====================================================
+
 userRouter.post(
-    '/generate-certificate/:courseId',
+    "/purchase",
+    protect,
+    purchaseCourse
+);
+
+
+// =====================================================
+// COURSE PROGRESS
+// =====================================================
+
+userRouter.post(
+    "/update-course-progress",
+    protect,
+    updateCourseProgress
+);
+
+userRouter.get(
+    "/course-progress/:courseId",
+    protect,
+    getCourseProgress
+);
+
+
+// =====================================================
+// RATINGS
+// =====================================================
+
+userRouter.post(
+    "/add-rating",
+    protect,
+    addUserRating
+);
+
+
+// =====================================================
+// CERTIFICATES
+// =====================================================
+
+userRouter.post(
+    "/generate-certificate/:courseId",
+    protect,
     generateCertificate
 );
+
 userRouter.get(
-    '/verify-certificate/:certificateId',
-    verifyCertificate
-);
-userRouter.get(
-    '/certificate/course/:courseId',
+    "/certificate/:courseId",
+    protect,
     getCertificate
 );
 
 userRouter.get(
-    '/certificate/:certificateId',
+    "/certificates",
+    protect,
+    getUserCertificates
+);
+
+userRouter.get(
+    "/certificate-by-id/:certificateId",
+    protect,
     getCertificateById
 );
 
+
+// =====================================================
+// PUBLIC CERTIFICATE VERIFICATION
+// =====================================================
+
 userRouter.get(
-    '/certificates',
-    getUserCertificates
-);
-userRouter.get(
-    "/course-progress/:courseId",
-    getCourseProgress
+    "/verify-certificate/:certificateId",
+    verifyCertificate
 );
 
-userRouter.post('/add-user-rating',addUserRating)
 
 export default userRouter;

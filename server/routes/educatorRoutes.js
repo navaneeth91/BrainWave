@@ -1,15 +1,82 @@
 import express from "express";
-import { addCourse, getEducatorCourses,educatorDashboardData, getEnrolledStudentsData,updateRoleToEducator } from "../controllers/educatorController.js";
+
+import {
+    addCourse,
+    getEducatorCourses,
+    educatorDashboardData,
+    getEnrolledStudentsData,
+    updateRoleToEducator,
+} from "../controllers/educatorController.js";
+
 import upload from "../configs/multer.js";
-import { protectEducator } from "../middlewares/authMiddleware.js";
 
-const eductaorRouter=express.Router()
+import {
+    protect,
+    protectEducator,
+} from "../middlewares/authMiddleware.js";
 
-//add educator role
 
-eductaorRouter.post('/update-role',updateRoleToEducator)
-eductaorRouter.post('/add-course',upload.single('courseThumbnail'),protectEducator,addCourse)
-eductaorRouter.get('/courses',protectEducator,getEducatorCourses)
-eductaorRouter.get('/dashboard',protectEducator,educatorDashboardData)
-eductaorRouter.get('/enrolled-students',protectEducator,getEnrolledStudentsData)
+const eductaorRouter = express.Router();
+
+
+// ==========================================
+// BECOME EDUCATOR
+// ==========================================
+
+eductaorRouter.post(
+    "/update-role",
+    protect,
+    updateRoleToEducator
+);
+
+
+// ==========================================
+// ADD COURSE
+// ==========================================
+
+eductaorRouter.post(
+    "/add-course",
+    protect,
+    protectEducator,
+    upload.single("courseThumbnail"),
+    addCourse
+);
+
+
+// ==========================================
+// EDUCATOR COURSES
+// ==========================================
+
+eductaorRouter.get(
+    "/courses",
+    protect,
+    protectEducator,
+    getEducatorCourses
+);
+
+
+// ==========================================
+// EDUCATOR DASHBOARD
+// ==========================================
+
+eductaorRouter.get(
+    "/dashboard",
+    protect,
+    protectEducator,
+    educatorDashboardData
+);
+
+
+// ==========================================
+// ENROLLED STUDENTS
+// ==========================================
+
+eductaorRouter.get(
+    "/enrolled-students",
+    protect,
+    protectEducator,
+    getEnrolledStudentsData
+);
+
+
 export default eductaorRouter;

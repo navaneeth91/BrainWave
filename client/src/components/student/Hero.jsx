@@ -1,17 +1,14 @@
 import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { useUser } from "@clerk/clerk-react";
 import { AppContext } from "../../context/AppContext";
 import SearchBar from "./SearchBar";
 
 const Hero = () => {
   const navigate = useNavigate();
-  const { user } = useUser();
-  const { enrolledCourses, allCourses } = useContext(AppContext);
+  const { enrolledCourses, allCourses, userData } = useContext(AppContext);
 
   const firstName =
-    user?.firstName ||
-    user?.fullName?.split(" ")[0] ||
+    userData?.name?.split(" ")[0] ||
     "Learner";
 
   const enrolledCount = enrolledCourses?.length || 0;

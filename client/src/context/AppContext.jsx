@@ -1,232 +1,268 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import humanizeDuration from "humanize-duration";
-export const AppContext = createContext();
-import {useAuth,useUser} from '@clerk/clerk-react'
 import axios from "axios";
 import { toast } from "react-toastify";
 
+export const AppContext = createContext();
 
+export const AppContextProvider = ({ children }) => {
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
+    const freeCoursesMode = import.meta.env.VITE_FREE_COURSES_MODE !== "false";
+    const currency = import.meta.env.VITE_CURRENCY || "$";
+    const navigate = useNavigate();
 
-export const AppContextProvider = (props)=>{
-    const backendUrl=import.meta.env.VITE_BACKEND_URL
-    const freeCoursesMode = import.meta.env.VITE_FREE_COURSES_MODE !== 'false';
-    const [allCourses, setAllCourses] = useState([])
-    const [coursesLoading, setCoursesLoading] = useState(true)
-    const [isEducator, setIsEducator] = useState(false)
-    const [enrolledCourses, setenrolledCourses] = useState([])
-    const [userData, setUserData] = useState(null)
-    const currency=import.meta.env.VITE_CURRENCY || '$';
+    axios.defaults.withCredentials = true;
 
-    const navigate=useNavigate();
+    const api = useMemo(() => axios.create({
+        baseURL: backendUrl,
+        withCredentials: true,
+    }), [backendUrl]);
 
-    const{getToken}=useAuth()
-    const{user}=useUser()
+    const [allCourses, setAllCourses] = useState([]);
+    const [coursesLoading, setCoursesLoading] = useState(true);
+    const [isEducator, setIsEducator] = useState(false);
+    const [enrolledCourses, setenrolledCourses] = useState([]);
+    const [userData, setUserData] = useState(null);
+    const [authLoading, setAuthLoading] = useState(true);
 
-    //fetch alla courses
-   const fetchAllCourses = async () => {
-    try {
-        setCoursesLoading(true);
+    const isAuthenticated = Boolean(userData);
 
-        console.log("Fetching courses...");
-
-        const { data } = await axios.get(
-            backendUrl + '/api/course/all'
-        );
-
-        console.log("Course API response:", data);
-
-        if (data.success) {
-            console.log("Courses received:", data.courses);
-
-            setAllCourses(data.courses || []);
-        } else {
-            console.log("Course API failed:", data.message);
-
-            toast.error(data.message);
-            setAllCourses([]);
-        }
-
-    } catch (error) {
-        console.error("Course API error:", error);
-
-        toast.error(error.message);
-        setAllCourses([]);
-
-    } finally {
-        setCoursesLoading(false);
-    }
-};
-    //fetch user data
-    const fetchUserData = async () => {
+    const refreshUser = async () => {
         try {
-            setIsEducator(user?.publicMetadata?.role === 'educator');
-            const token=await getToken();
-            const {data}=await axios.get(backendUrl+'/api/user/data', {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-            if(data.success){
-            setUserData(data.user);
+            const { data } = await api.get("/api/auth/me");
+            if (data.success) {
+                setUserData(data.user);
+                setIsEducator(data.user.role === "educator");
+                return data.user;
             }
-            else{
-                 toast.error(data.message);
+            setUserData(null);
+            setIsEducator(false);
+            return null;
+        } catch (error) {
+            if (error.response?.status !== 401) {
+                console.error("Fetch user error:", error);
+            }
+            setUserData(null);
+            setIsEducator(false);
+            return null;
+        } finally {
+            setAuthLoading(false);
+        }
+    };
+
+    const register = async (payload) => {
+        const { data } = await api.post("/api/auth/register", payload);
+        if (data.success) {
+            setUserData(data.user);
+            setIsEducator(data.user.role === "educator");
+        }
+        return data;
+    };
+
+    const login = async (payload) => {
+        const { data } = await api.post("/api/auth/login", payload);
+        if (data.success) {
+            setUserData(data.user);
+            setIsEducator(data.user.role === "educator");
+        }
+        return data;
+    };
+
+    const logout = async () => {
+        try {
+            const { data } = await api.post("/api/auth/logout");
+            if (data.success) {
+                setUserData(null);
+                setIsEducator(false);
+                setenrolledCourses([]);
+                toast.success("Logged out successfully");
+                navigate("/");
             }
         } catch (error) {
-            toast.error(error.message)
+            toast.error(error.response?.data?.message || "Unable to logout");
         }
-    }
+    };
 
+    const sendPhoneOtp = async (payload) => {
+        const { data } = await api.post("/api/auth/send-phone-otp", payload);
+        return data;
+    };
 
-
-    //function to calculate average rating
-    const calculateRating = (course) => {
-        if ( course.courseRatings.length === 0) return 0;
-        let total = 0;
-        course.courseRatings.forEach((rating) => {
-            total += rating.rating;
-        }); 
-        return Math.floor(total / course.courseRatings.length);
-
-    }
-    //function to calculate course chapter time
-    const calculateChapterTime = (chapter)=>{
-        let time=0
-        chapter.chapterContent.map((lecture)=>time+=lecture.lectureDuration)
-        return humanizeDuration(time*60*1000,{units:['h', 'm']})
-    } 
-    //function to calculate course duration
-    const calculateCourseDuration = (course) => {
-        let total = 0;
-        course.courseContent.map((chapter)=>chapter.chapterContent.map((lecture)=>total+=lecture.lectureDuration))
-        return humanizeDuration(total*60*1000,{units:['h', 'm']})
-    }
-    //function to fecth enrolled courses
-    const fetchEnrolledCourses = async () => {
-        try{
-            const token=await getToken();
-            const {data}=await axios.get(backendUrl+'/api/user/data/enrolled-courses',{
-                headers:{
-                    Authorization: `Bearer ${token}`
-                }
-        });
-        if(data.success){
-            setenrolledCourses(data.enrolledCourses.reverse())
-        }
-        else{
-            toast.error(data.message)
-        }
-    } catch (error) {
-        toast.error(error.message);
-    }
-}
-// Generate course certificate
-const generateCertificate = async (courseId) => {
-    try {
-        const token = await getToken();
-
-        const { data } = await axios.post(
-            `${backendUrl}/api/user/generate-certificate/${courseId}`,
-            {},
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            }
-        );
-
+    const verifyPhoneOtp = async (payload) => {
+        const { data } = await api.post("/api/auth/verify-phone-otp", payload);
         if (data.success) {
-            toast.success(data.message);
-            return data.certificate;
-        } else {
+            setUserData(data.user);
+            setIsEducator(data.user.role === "educator");
+        }
+        return data;
+    };
+
+    const forgotPassword = async (payload) => {
+        const { data } = await api.post("/api/auth/forgot-password", payload);
+        return data;
+    };
+
+    const resetPassword = async (payload) => {
+        const { data } = await api.post("/api/auth/reset-password", payload);
+        return data;
+    };
+
+    const fetchAllCourses = async () => {
+        try {
+            setCoursesLoading(true);
+            const { data } = await api.get("/api/course/all");
+            if (data.success) {
+                setAllCourses(data.courses || []);
+            } else {
+                toast.error(data.message);
+                setAllCourses([]);
+            }
+        } catch (error) {
+            if (error.response?.status !== 401) {
+                toast.error(error.response?.data?.message || error.message);
+            }
+            setAllCourses([]);
+        } finally {
+            setCoursesLoading(false);
+        }
+    };
+
+    const fetchEnrolledCourses = async () => {
+        if (!userData) {
+            setenrolledCourses([]);
+            return;
+        }
+
+        try {
+            const { data } = await api.get("/api/user/data/enrolled-courses");
+            if (data.success) {
+                const courses = data.enrolledCourses || [];
+                setenrolledCourses([...courses].reverse());
+            } else {
+                toast.error(data.message);
+            }
+        } catch (error) {
+            if (error.response?.status !== 401) {
+                toast.error(error.response?.data?.message || error.message);
+            }
+            setenrolledCourses([]);
+        }
+    };
+
+    const generateCertificate = async (courseId) => {
+        try {
+            const { data } = await api.post(`/api/user/generate-certificate/${courseId}`, {});
+            if (data.success) {
+                toast.success(data.message);
+                return data.certificate;
+            }
             toast.error(data.message);
             return null;
+        } catch (error) {
+            toast.error(error.response?.data?.message || error.message);
+            return null;
         }
+    };
 
-    } catch (error) {
-        toast.error(
-            error.response?.data?.message || error.message
-        );
-        return null;
-    }
-};
+    const fetchCourseExam = async (courseId) => {
+        try {
+            const { data } = await api.get(`/api/course/${courseId}`);
+            if (data.success) return data.exam || null;
+            return null;
+        } catch {
+            return null;
+        }
+    };
 
-// Fetch published exam for a course
-const fetchCourseExam = async (courseId) => {
-    try {
-        const token = await getToken();
+    const calculateRating = (course) => {
+        if (!course.courseRatings || course.courseRatings.length === 0) return 0;
+        const total = course.courseRatings.reduce((sum, item) => sum + item.rating, 0);
+        return Math.floor(total / course.courseRatings.length);
+    };
 
-        const { data } = await axios.get(
-            `${backendUrl}/api/course/${courseId}`,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+    const calculateChapterTime = (chapter) => {
+        let time = 0;
+        chapter.chapterContent.forEach((lecture) => {
+            time += lecture.lectureDuration;
+        });
+        return humanizeDuration(time * 60 * 1000, { units: ["h", "m"] });
+    };
+
+    const calculateCourseDuration = (course) => {
+        let total = 0;
+        course.courseContent.forEach((chapter) => chapter.chapterContent.forEach((lecture) => {
+            total += lecture.lectureDuration;
+        }));
+        return humanizeDuration(total * 60 * 1000, { units: ["h", "m"] });
+    };
+
+    const calculateNoofLectures = (course) => {
+        let totalLectures = 0;
+        course.courseContent.forEach((chapter) => {
+            if (Array.isArray(chapter.chapterContent)) {
+                totalLectures += chapter.chapterContent.length;
             }
-        );
+        });
+        return totalLectures;
+    };
 
-        if (data.success) {
-            return data.exam || null;
+    const getToken = async () => "cookie-auth";
+
+    useEffect(() => {
+        refreshUser();
+    }, []);
+
+    useEffect(() => {
+        if (userData) {
+            fetchEnrolledCourses();
+        } else {
+            setenrolledCourses([]);
         }
+    }, [userData]);
 
-        return null;
+    useEffect(() => {
+        fetchAllCourses();
+    }, []);
 
-    } catch (error) {
-        console.error("Error fetching course exam:", error);
-        return null;
-    }
-};
-
-//function to calculate no of lectures in course
-const calculateNoofLectures = (course) => {
-    let totalLectures = 0;
-    course.courseContent.forEach((chapter) => {
-        if (Array.isArray(chapter.chapterContent)) {
-            totalLectures += chapter.chapterContent.length;
-        }
-    });
-    return totalLectures;
-};
-
-useEffect(()=>{
-    if(user){
-        fetchUserData();
-        fetchEnrolledCourses();
-    }
-  },[user,getToken])
-
-useEffect(() => {
-    fetchAllCourses();
-}, []);
-
-    const value={
+    const value = {
         currency,
-        allCourses,
-        navigate,
-        coursesLoading,
-        calculateRating,
-        isEducator,
-        setIsEducator,
-        calculateChapterTime,
-        calculateCourseDuration,
-        calculateNoofLectures,
-        setenrolledCourses,
-        enrolledCourses,
         backendUrl,
+        navigate,
         freeCoursesMode,
         userData,
         setUserData,
-        fetchUserData,
+        authLoading,
+        isAuthenticated,
+        isEducator,
+        setIsEducator,
+        login,
+        register,
+        logout,
+        sendPhoneOtp,
+        verifyPhoneOtp,
+        forgotPassword,
+        resetPassword,
+        refreshUser,
+        fetchUserData: refreshUser,
+        getToken,
+        allCourses,
+        coursesLoading,
+        enrolledCourses,
+        setenrolledCourses,
         fetchEnrolledCourses,
         fetchAllCourses,
-        getToken,
         generateCertificate,
-        fetchCourseExam
-    }
-    return(
+        fetchCourseExam,
+        calculateRating,
+        calculateChapterTime,
+        calculateCourseDuration,
+        calculateNoofLectures,
+    };
+
+    return (
         <AppContext.Provider value={value}>
-            {props.children}
+            {children}
         </AppContext.Provider>
-    )
-}
+    );
+};

@@ -1,97 +1,149 @@
-import express from 'express';
-import cors from 'cors';
-import 'dotenv/config';
+import express from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import "dotenv/config";
 
-import connectDB from './configs/mongodb.js';
-import { clerkWebhooks, stripeWebhooks } from './controllers/webhooks.js';
+import connectDB from "./configs/mongodb.js";
+import connectCloudinary from "./configs/cloudinary.js";
 
-import eductaorRouter from './routes/educatorRoutes.js';
-import { clerkMiddleware } from '@clerk/express';
+import { stripeWebhooks } from "./controllers/webhooks.js";
 
-import connectCloudinary from './configs/cloudinary.js';
-import courseRouter from './routes/courseRoute.js';
-import userRouter from './routes/userRoutes.js';
-import examRouter from './routes/examRoutes.js';
+import eductaorRouter from "./routes/educatorRoutes.js";
+import courseRouter from "./routes/courseRoute.js";
+import userRouter from "./routes/userRoutes.js";
+import examRouter from "./routes/examRoutes.js";
+import authRouter from "./routes/authRoutes.js";
 
-// Initialize Express
 const app = express();
 
-// Connect to Database
+
+// =====================================================
+// DATABASE
+// =====================================================
+
 await connectDB();
 
-// Connect to Cloudinary
+
+// =====================================================
+// CLOUDINARY
+// =====================================================
+
 await connectCloudinary();
 
-// ==========================================
-// MIDDLEWARE
-// ==========================================
 
-app.use(cors());
+// =====================================================
+// CORS
+// =====================================================
 
-app.use(clerkMiddleware());
+app.use(
+    cors({
+        origin:
+            process.env.FRONTEND_URL ||
+            "http://localhost:5173",
 
-// ==========================================
-// ROUTES
-// ==========================================
-
-// Test API
-app.get('/', (req, res) => {
-    res.send('API Working');
-});
-
-// Clerk Webhook
-app.post(
-    '/clerk',
-    express.json(),
-    clerkWebhooks
+        credentials: true,
+    })
 );
 
-// Educator Routes
+
+// =====================================================
+// BODY PARSER
+// =====================================================
+
+app.use(express.json());
+
+
+// =====================================================
+// COOKIE PARSER
+// =====================================================
+
+app.use(cookieParser());
+
+
+// =====================================================
+// TEST
+// =====================================================
+
+app.get("/", (req, res) => {
+    res.send("API Working");
+});
+
+
+// =====================================================
+// AUTH
+// =====================================================
+
 app.use(
-    '/api/educator',
-    express.json(),
+    "/api/auth",
+    authRouter
+);
+
+
+// =====================================================
+// EDUCATOR
+// =====================================================
+
+app.use(
+    "/api/educator",
     eductaorRouter
 );
 
-// Course Routes
+
+// =====================================================
+// COURSE
+// =====================================================
+
 app.use(
-    '/api/course',
-    express.json(),
+    "/api/course",
     courseRouter
 );
 
-// User Routes
+
+// =====================================================
+// USER
+// =====================================================
+
 app.use(
-    '/api/user',
-    express.json(),
+    "/api/user",
     userRouter
 );
 
-// Exam Routes
-// IMPORTANT: express.json() is required here
-// so req.body works inside createExam()
+
+// =====================================================
+// EXAM
+// =====================================================
+
 app.use(
-    '/api/exam',
-    express.json(),
+    "/api/exam",
     examRouter
 );
 
-// Stripe Webhook
-// IMPORTANT: Stripe requires raw body
+
+// =====================================================
+// STRIPE WEBHOOK
+// =====================================================
+
+// Keep Stripe raw-body handling before normal JSON handling
+// if your Stripe webhook requires the raw request body.
+
 app.use(
-    '/stripe',
+    "/stripe",
     express.raw({
-        type: 'application/json'
+        type: "application/json",
     }),
     stripeWebhooks
 );
 
-// ==========================================
-// PORT
-// ==========================================
 
-const PORT = process.env.PORT || 5000;
+// =====================================================
+// SERVER
+// =====================================================
+
+const PORT =
+    process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(
+        `Server is running on port ${PORT}`
+    );
 });
