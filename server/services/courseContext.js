@@ -77,6 +77,7 @@ export const buildCourseContext = (course) => {
  * truncated to a sensible character budget.
  */
 export const buildLearningContextPrompt = (courseContext, currentLecture) => {
+  // --- Build the CURRENT LECTURE block ---
   const currentLectureLines = [
     '=== CURRENT LECTURE (highest priority) ===',
     `Chapter: ${currentLecture.chapterTitle || '—'}`,
@@ -87,10 +88,26 @@ export const buildLearningContextPrompt = (courseContext, currentLecture) => {
         : 'not specified'
     }`,
   ];
-  if (currentLecture.description) {
+
+  // Include transcript if available and non-empty.
+  const transcript = currentLecture.transcript || '';
+  if (transcript) {
+    // Truncate transcript to a reasonable chunk so it always fits.
+    const maxTranscriptChars = 3000; // generous but bounded
+    const truncatedTranscript = transcript.length > maxTranscriptChars
+      ? transcript.slice(0, maxTranscriptChars - 1).trimEnd() + '…'
+      : transcript;
     currentLectureLines.push(
-      `Lecture Description: ${currentLecture.description}`
+      `Lecture Transcript: ${truncatedTranscript}`
     );
+  }
+
+  if (!transcript) {
+    if (currentLecture.description) {
+      currentLectureLines.push(
+        `Lecture Description: ${currentLecture.description}`
+      );
+    }
   }
 
   const lines = [

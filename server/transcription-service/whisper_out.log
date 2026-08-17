@@ -1,0 +1,5 @@
+INFO:     127.0.0.1:56278 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60950 - "POST /transcribe HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:60950 - "POST /transcribe HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55881 - "POST /transcribe HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57243 - "POST /transcribe HTTP/1.1" 200 OK
