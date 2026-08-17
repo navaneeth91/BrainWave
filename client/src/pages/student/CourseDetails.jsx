@@ -6,6 +6,7 @@ import { AppContext } from "../../context/AppContext";
 import { assets } from "../../assets/assets";
 import humanizeDuration from "humanize-duration";
 import YouTube from "react-youtube";
+import { isYouTubeUrl, getYouTubeVideoId } from "../../utils/video";
 import axios from "axios";
 import { toast } from "react-toastify";
 import AOS from "aos";
@@ -354,15 +355,28 @@ const CourseDetails = () => {
                   <div className="relative">
 
                     {playerdata ? (
-                      <YouTube
-                        videoId={playerdata.videoid}
-                        opts={{
-                          playerVars: {
-                            autoplay: 1,
-                          },
-                        }}
-                        iframeClassName="w-full aspect-video"
-                      />
+                      isYouTubeUrl(playerdata.lectureUrl) ? (
+                        <YouTube
+                          videoId={getYouTubeVideoId(
+                            playerdata.lectureUrl
+                          )}
+                          opts={{
+                            playerVars: {
+                              autoplay: 1,
+                            },
+                          }}
+                          iframeClassName="w-full aspect-video"
+                        />
+                      ) : (
+                        <video
+                          key={playerdata.lectureUrl}
+                          src={playerdata.lectureUrl}
+                          className="w-full aspect-video bg-black"
+                          controls
+                          autoPlay
+                          playsInline
+                        />
+                      )
                     ) : (
                       <div className="relative group">
 
@@ -779,12 +793,7 @@ const CourseDetails = () => {
                                         onClick={() =>
                                           setPlayerData(
                                             {
-                                              videoid:
-                                                lecture.lectureUrl
-                                                  .split(
-                                                    "/"
-                                                  )
-                                                  .pop(),
+                                              ...lecture,
                                             }
                                           )
                                         }
