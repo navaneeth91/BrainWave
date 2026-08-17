@@ -12,6 +12,7 @@ import connectCloudinary from './configs/cloudinary.js';
 import courseRouter from './routes/courseRoute.js';
 import userRouter from './routes/userRoutes.js';
 import examRouter from './routes/examRoutes.js';
+import aiRouter from './routes/aiRoutes.js';
 
 // Initialize Express
 const app = express();
@@ -74,6 +75,16 @@ app.use(
     '/api/exam',
     express.json(),
     examRouter
+);
+
+// AI Routes (BrainWave AI Learning Assistant)
+// Note: clerkMiddleware() runs globally above, so req.auth.userId is
+// available inside the AI controller. The body limit is small because the
+// frontend only sends a message + a short conversation history.
+app.use(
+    '/api/ai',
+    express.json({ limit: '128kb' }),
+    aiRouter
 );
 
 // Stripe Webhook

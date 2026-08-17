@@ -20,6 +20,7 @@ import Rating from '../../components/student/Rating';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import Loading from '../../components/student/Loading';
+import BrainwaveAIFloatingAssistant from '../../components/student/AI/BrainwaveAIFloatingAssistant';
 
 const Player = () => {
   const {
@@ -631,6 +632,11 @@ const Player = () => {
           </div>
         </div>
       </div>
+
+      <BrainwaveAIFloatingAssistant
+        courseData={courseData}
+        currentLecture={playerdata}
+      />
 
       <Footer />
     </>
