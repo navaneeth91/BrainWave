@@ -35,3 +35,66 @@
 .rich-text ul { margin-left: 30px; list-style-type: disc; }
 
 .rich-text li { margin-bottom: 8px; }
+
+/* ==========================================
+   BrainWave AI Learning Assistant
+   ========================================== */
+.ai-dot {
+  animation: ai-bounce 1.2s infinite ease-in-out;
+}
+.ai-dot:nth-child(2) { animation-delay: 0.15s; }
+.ai-dot:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes ai-bounce {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.5; }
+  40% { transform: translateY(-4px); opacity: 1; }
+}
+
+.ai-message-in {
+  animation: ai-message-in 0.25s ease-out;
+}
+
+@keyframes ai-message-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* AI markdown rendering */
+.ai-paragraph { margin-bottom: 0.5rem; }
+.ai-paragraph:last-child { margin-bottom: 0; }
+.ai-heading { font-weight: 700; color: #1f2937; margin: 0.9rem 0 0.35rem; }
+.ai-heading:first-child { margin-top: 0; }
+.ai-list { margin: 0.35rem 0 0.5rem; padding-left: 1.2rem; list-style: disc; }
+ol.ai-list { list-style: decimal; }
+.ai-list li { margin-bottom: 0.25rem; }
+.ai-list li:last-child { margin-bottom: 0; }
+.ai-quote {
+  border-left: 3px solid #f97316;
+  margin: 0.5rem 0;
+  padding: 0.1rem 0.75rem;
+  background: #fff7ed;
+  border-radius: 0.375rem;
+  color: #4b5563;
+}
+.ai-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.78em;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.25rem;
+  padding: 0.05rem 0.3rem;
+}
+.ai-code-block {
+  background: #111827;
+  color: #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 0.8rem 1rem;
+  overflow-x: auto;
+  font-size: 0.8rem;
+  margin: 0.5rem 0;
+  white-space: pre;
+}
+.ai-code-block code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.ai-link { color: #ea580c; text-decoration: underline; }
