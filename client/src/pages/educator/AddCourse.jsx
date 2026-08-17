@@ -86,9 +86,50 @@ const AddCourse = () => {
     useState({
       lectureTitle: "",
       lectureUrl: "",
+      lecturePublicId: "",
       lectureDuration: "",
       isPreviewFree: false,
     });
+
+  // ==========================================
+  // VIDEO UPLOAD STATE
+  // ==========================================
+
+  const MAX_VIDEO_SIZE = 500 * 1024 * 1024; // 500 MB
+
+  const ALLOWED_VIDEO_TYPES = [
+    "video/mp4",
+    "video/webm",
+    "video/ogg",
+    "video/quicktime",
+    "video/x-msvideo",
+    "video/x-matroska",
+    "video/mpeg",
+    "video/3gpp",
+  ];
+
+  const [videoFile, setVideoFile] =
+    useState(null);
+
+  const [uploading, setUploading] =
+    useState(false);
+
+  const [uploadProgress, setUploadProgress] =
+    useState(0);
+
+  const [videoUploadError, setVideoUploadError] =
+    useState("");
+
+  const [useUrlMode, setUseUrlMode] =
+    useState(false);
+
+  const [previousPublicId, setPreviousPublicId] =
+    useState("");
+
+  // True once the current modal's uploaded video has been attached to a
+  // lecture (added to the chapters array) so that closing the modal does
+  // not delete a video that is now in use.
+  const videoAttachedRef = useRef(false);
 
   // ==========================================
   // INITIALIZE QUILL
@@ -220,12 +261,32 @@ const AddCourse = () => {
 
     if (!confirmed) return;
 
-    setChapters((prev) =>
-      prev.filter(
+    let removedPublicIds = [];
+    setChapters((prev) => {
+      const removedChapter = prev.find(
+        (chapter) =>
+          chapter.chapterId === chapterId
+      );
+
+      if (removedChapter) {
+        removedPublicIds =
+          removedChapter.chapterContent
+            .map(
+              (lecture) =>
+                lecture.lecturePublicId
+            )
+            .filter(Boolean);
+      }
+
+      return prev.filter(
         (chapter) =>
           chapter.chapterId !== chapterId
-      )
-    );
+      );
+    });
+
+    removedPublicIds.forEach((publicId) => {
+      deleteCloudinaryVideo(publicId);
+    });
   };
 
   // ==========================================
@@ -256,9 +317,17 @@ const AddCourse = () => {
     setLectureDetails({
       lectureTitle: "",
       lectureUrl: "",
+      lecturePublicId: "",
       lectureDuration: "",
       isPreviewFree: false,
     });
+
+    setVideoFile(null);
+    setUploadProgress(0);
+    setVideoUploadError("");
+    setUseUrlMode(false);
+    setPreviousPublicId("");
+    videoAttachedRef.current = false;
 
     setShowPopup(true);
   };
@@ -268,15 +337,35 @@ const AddCourse = () => {
   // ==========================================
 
   const closeLectureModal = () => {
+    // If a video was uploaded but never attached to a lecture (the
+    // educator cancelled without clicking "Add Lecture"), remove it from
+    // Cloudinary to avoid leaving orphaned assets.
+    const unattachedPublicId =
+      !videoAttachedRef.current
+        ? lectureDetails.lecturePublicId
+        : "";
+
     setShowPopup(false);
     setCurrentChapterId(null);
 
     setLectureDetails({
       lectureTitle: "",
       lectureUrl: "",
+      lecturePublicId: "",
       lectureDuration: "",
       isPreviewFree: false,
     });
+
+    setVideoFile(null);
+    setUploadProgress(0);
+    setVideoUploadError("");
+    setUseUrlMode(false);
+    setPreviousPublicId("");
+    videoAttachedRef.current = false;
+
+    if (unattachedPublicId) {
+      deleteCloudinaryVideo(unattachedPublicId);
+    }
   };
 
   // ==========================================
@@ -297,7 +386,19 @@ const AddCourse = () => {
       !lectureDetails.lectureUrl.trim()
     ) {
       toast.error(
-        "Please enter lecture URL"
+        "Please upload or paste a lecture video URL"
+      );
+      return;
+    }
+
+    // When using the upload flow, make sure the video was uploaded to
+    // Cloudinary (lecturePublicId present) before adding the lecture.
+    if (
+      !useUrlMode &&
+      !lectureDetails.lecturePublicId.trim()
+    ) {
+      toast.error(
+        "Please upload the video before adding the lecture"
       );
       return;
     }
@@ -355,6 +456,9 @@ const AddCourse = () => {
       "Lecture added successfully"
     );
 
+    // Mark the video as attached so closeLectureModal keeps it.
+    videoAttachedRef.current = true;
+
     closeLectureModal();
   };
 
@@ -373,6 +477,9 @@ const AddCourse = () => {
 
     if (!confirmed) return;
 
+    // Find the lecture being removed so we can clean up its uploaded
+    // Cloudinary video (it is not referenced anywhere else yet).
+    let removedLecture = null;
     setChapters((prev) =>
       prev.map((chapter) => {
         if (
@@ -380,6 +487,11 @@ const AddCourse = () => {
         ) {
           return chapter;
         }
+
+        removedLecture =
+          chapter.chapterContent[
+            lectureIndex
+          ] || null;
 
         const updatedLectures =
           chapter.chapterContent.filter(
@@ -400,6 +512,14 @@ const AddCourse = () => {
         };
       })
     );
+
+    if (
+      removedLecture?.lecturePublicId
+    ) {
+      deleteCloudinaryVideo(
+        removedLecture.lecturePublicId
+      );
+    }
   };
 
   // ==========================================
@@ -430,6 +550,182 @@ const AddCourse = () => {
     }
 
     setImage(file);
+  };
+
+  // ==========================================
+  // VIDEO SELECT / UPLOAD / DELETE / REPLACE
+  // ==========================================
+
+  const resetVideoUploadState = () => {
+    setVideoFile(null);
+    setUploadProgress(0);
+    setVideoUploadError("");
+  };
+
+  const handleVideoFileChange = (event) => {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    if (!ALLOWED_VIDEO_TYPES.includes(file.type)) {
+      toast.error(
+        "Invalid video type. Please upload MP4, WebM, OGG, MOV, AVI, MKV, MPEG or 3GP."
+      );
+      setVideoFile(null);
+      return;
+    }
+
+    if (file.size > MAX_VIDEO_SIZE) {
+      toast.error(
+        "Video file must be less than 500 MB"
+      );
+      setVideoFile(null);
+      return;
+    }
+
+    setVideoFile(file);
+    setVideoUploadError("");
+  };
+
+  // Delete a previously uploaded Cloudinary video (a lecture that is
+  // being removed or replaced before the course is published).
+  const deleteCloudinaryVideo = async (publicId) => {
+    try {
+      const token = await getToken();
+
+      await axios.post(
+        `${backendUrl}/api/course/delete-video`,
+        { publicId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+    } catch (error) {
+      console.error(
+        "Delete video error:",
+        error
+      );
+    }
+  };
+
+  const uploadVideoToCloudinary = async () => {
+    if (!videoFile) {
+      toast.error(
+        "Please select a video file first"
+      );
+      return;
+    }
+
+    setUploading(true);
+    setUploadProgress(0);
+    setVideoUploadError("");
+
+    try {
+      const formData = new FormData();
+      formData.append("video", videoFile);
+
+      const token = await getToken();
+
+      const { data } = await axios.post(
+        `${backendUrl}/api/course/upload-video`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+          onUploadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              const percent = Math.round(
+                (progressEvent.loaded * 100) /
+                  progressEvent.total
+              );
+              setUploadProgress(percent);
+            }
+          },
+        }
+      );
+
+      if (!data.success) {
+        setVideoUploadError(
+          data.message ||
+            "Video upload failed"
+        );
+        return;
+      }
+
+      const video = data.video;
+
+      // Upload succeeded. The NEW video is now safe on Cloudinary, so it is
+      // now okay to remove a previously uploaded (unsaved) version.
+      if (
+        previousPublicId &&
+        previousPublicId !== video.publicId
+      ) {
+        await deleteCloudinaryVideo(
+          previousPublicId
+        );
+      }
+
+      setPreviousPublicId(video.publicId);
+
+      setLectureDetails((prev) => ({
+        ...prev,
+        lectureUrl: video.url,
+        lecturePublicId: video.publicId,
+        lectureDuration: video.duration
+          ? Math.max(
+              1,
+              Math.ceil(
+                Number(video.duration) / 60
+              )
+            )
+          : prev.lectureDuration,
+      }));
+
+      toast.success("Video uploaded successfully");
+    } catch (error) {
+      console.error(
+        "Upload video error:",
+        error
+      );
+
+      setVideoUploadError(
+        error.response?.data?.message ||
+          error.message ||
+          "Video upload failed"
+      );
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // Remove the currently attached video from Cloudinary and reset the
+  // lecture's video fields.
+  const removeUploadedVideo = async () => {
+    const confirmed = window.confirm(
+      "Remove this uploaded video?"
+    );
+
+    if (!confirmed) return;
+
+    if (lectureDetails.lecturePublicId) {
+      await deleteCloudinaryVideo(
+        lectureDetails.lecturePublicId
+      );
+    }
+
+    setPreviousPublicId("");
+    resetVideoUploadState();
+
+    setLectureDetails((prev) => ({
+      ...prev,
+      lectureUrl: "",
+      lecturePublicId: "",
+      lectureDuration: "",
+    }));
   };
 
   // ==========================================
@@ -1567,41 +1863,69 @@ const AddCourse = () => {
 
               </div>
 
-              {/* URL */}
-
+              {/* VIDEO / URL */}
               <div>
-
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Video URL
-                </label>
-
-                <div className="relative">
-
-                  <LinkIcon
-                    size={16}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                  />
-
-                  <input
-                    type="url"
-                    value={
-                      lectureDetails.lectureUrl
-                    }
-                    onChange={(e) =>
-                      setLectureDetails(
-                        (prev) => ({
-                          ...prev,
-                          lectureUrl:
-                            e.target.value,
-                        })
-                      )
-                    }
-                    placeholder="https://youtube.com/..."
-                    className="w-full h-11 pl-9 pr-4 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 text-sm"
-                  />
-
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Lecture Video</label>
+                <div className="grid grid-cols-2 gap-1 p-1 rounded-xl bg-gray-100 mb-3">
+                  <button
+                    type="button"
+                    onClick={() => { setUseUrlMode(false); setVideoUploadError(""); }}
+                    className={`py-1.5 rounded-lg text-sm font-medium transition ${!useUrlMode ? "bg-white text-orange-600 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+                  >Upload Video</button>
+                  <button
+                    type="button"
+                    onClick={() => { setUseUrlMode(true); setVideoUploadError(""); }}
+                    className={`py-1.5 rounded-lg text-sm font-medium transition ${useUrlMode ? "bg-white text-orange-600 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+                  >Paste URL</button>
                 </div>
 
+                {!useUrlMode ? (
+                  <div className="space-y-3">
+                    {lectureDetails.lectureUrl && lectureDetails.lecturePublicId ? (
+                      <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+                        <div className="flex items-center gap-2 text-emerald-700 font-semibold text-sm"><span>✓</span><span>Video uploaded successfully</span></div>
+                        <p className="text-xs text-emerald-600 mt-1 truncate">{lectureDetails.lectureUrl}</p>
+                        {videoFile && <p className="text-xs text-gray-500 mt-1">Selected: {videoFile.name}</p>}
+                        <div className="flex gap-2 mt-3">
+                          <label htmlFor="lectureVideoFile" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold cursor-pointer transition"><Upload size={14} /> Replace Video</label>
+                          <button type="button" onClick={removeUploadedVideo} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 text-xs font-semibold transition"><Trash2 size={14} /> Remove Video</button>
+                        </div>
+                      </div>
+                    ) : uploading ? (
+                      <div className="rounded-xl border border-gray-200 p-4">
+                        <div className="flex items-center gap-2 text-gray-700 text-sm font-medium"><span className="w-4 h-4 border-2 border-orange-300 border-t-orange-500 rounded-full animate-spin" />Uploading...</div>
+                        <div className="mt-3 h-2 rounded-full bg-gray-100 overflow-hidden"><div className="h-full bg-orange-500 transition-all duration-200" style={{ width: `${uploadProgress}%` }} /></div>
+                        <p className="text-xs text-gray-500 mt-1 text-right">{uploadProgress}%</p>
+                      </div>
+                    ) : (
+                      <div>
+                        <input id="lectureVideoFile" type="file" accept="video/*" onChange={handleVideoFileChange} className="hidden" />
+                        <label htmlFor="lectureVideoFile" className="flex flex-col items-center justify-center gap-2 p-5 rounded-xl border-2 border-dashed border-gray-200 hover:border-orange-300 hover:bg-orange-50/30 cursor-pointer transition">
+                          <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center"><Upload size={18} /></div>
+                          <span className="text-sm font-semibold text-gray-700">Choose Video</span>
+                          <span className="text-xs text-gray-400">MP4, WebM, MOV, AVI, MKV - max 500 MB</span>
+                        </label>
+                        {videoFile && <p className="text-xs text-gray-500 mt-2">Selected: {videoFile.name} ({(videoFile.size / (1024 * 1024)).toFixed(1)} MB)</p>}
+                        {videoUploadError && <p className="text-xs text-red-500 mt-2">{videoUploadError}</p>}
+                        <button type="button" disabled={!videoFile} onClick={uploadVideoToCloudinary} className="mt-3 w-full py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 disabled:bg-orange-200 text-white text-sm font-semibold transition">Upload Video</button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div>
+                    <div className="relative">
+                      <LinkIcon size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                      <input
+                        type="url"
+                        value={lectureDetails.lectureUrl}
+                        onChange={(e) => setLectureDetails((prev) => ({ ...prev, lectureUrl: e.target.value }))}
+                        placeholder="https://youtube.com/..."
+                        className="w-full h-11 pl-9 pr-4 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 text-sm"
+                      />
+                    </div>
+                    <p className="text-xs text-gray-400 mt-2">Paste a YouTube video URL for this lecture.</p>
+                  </div>
+                )}
               </div>
 
               {/* DURATION */}
