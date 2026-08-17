@@ -1,0 +1,43 @@
+INFO:     Started server process [10368]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8001 (Press CTRL+C to quit)
+2026-08-18 01:02:29,853 INFO brainwave-whisper: Downloading https://res.cloudinary.com/dvhodzpxb/video/upload/v1786895389/brainwave/course-videos/edhdtudrp0gvecoa7vx9.mp4
+2026-08-18 01:02:29,955 INFO httpx: HTTP Request: GET https://res.cloudinary.com/dvhodzpxb/video/upload/v1786895389/brainwave/course-videos/edhdtudrp0gvecoa7vx9.mp4 "HTTP/1.1 200 OK"
+2026-08-18 01:02:32,929 INFO brainwave-whisper: Downloaded in 3.07 s (55327063 bytes)
+2026-08-18 01:02:33,384 INFO brainwave-whisper: Loading faster-whisper model 'base' ...
+2026-08-18 01:02:33,858 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/Systran/faster-whisper-base/revision/main "HTTP/1.1 200 OK"
+2026-08-18 01:02:34,107 INFO httpx: HTTP Request: GET https://huggingface.co/api/models/Systran/faster-whisper-base/tree/ebe41f70d5b6dfa9166e2c581c45c9c0cfc57b66?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-08-18 01:02:34,344 INFO httpx: HTTP Request: HEAD https://huggingface.co/Systran/faster-whisper-base/resolve/ebe41f70d5b6dfa9166e2c581c45c9c0cfc57b66/vocabulary.txt "HTTP/1.1 307 Temporary Redirect"
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-08-18 01:02:34,346 WARNING huggingface_hub.utils._http: Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-08-18 01:02:34,361 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Systran/faster-whisper-base/ebe41f70d5b6dfa9166e2c581c45c9c0cfc57b66/vocabulary.txt "HTTP/1.1 200 OK"
+2026-08-18 01:02:34,372 INFO httpx: HTTP Request: HEAD https://huggingface.co/Systran/faster-whisper-base/resolve/ebe41f70d5b6dfa9166e2c581c45c9c0cfc57b66/tokenizer.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-18 01:02:34,374 INFO httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Systran/faster-whisper-base/ebe41f70d5b6dfa9166e2c581c45c9c0cfc57b66/vocabulary.txt "HTTP/1.1 200 OK"
+2026-08-18 01:02:34,480 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Systran/faster-whisper-base/ebe41f70d5b6dfa9166e2c581c45c9c0cfc57b66/tokenizer.json "HTTP/1.1 200 OK"
+2026-08-18 01:02:34,481 INFO httpx: HTTP Request: HEAD https://huggingface.co/Systran/faster-whisper-base/resolve/ebe41f70d5b6dfa9166e2c581c45c9c0cfc57b66/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-08-18 01:02:34,493 INFO httpx: HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Systran/faster-whisper-base/ebe41f70d5b6dfa9166e2c581c45c9c0cfc57b66/config.json "HTTP/1.1 200 OK"
+2026-08-18 01:02:34,495 INFO httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Systran/faster-whisper-base/ebe41f70d5b6dfa9166e2c581c45c9c0cfc57b66/tokenizer.json "HTTP/1.1 200 OK"
+2026-08-18 01:02:34,508 INFO httpx: HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Systran/faster-whisper-base/ebe41f70d5b6dfa9166e2c581c45c9c0cfc57b66/config.json "HTTP/1.1 200 OK"
+C:\Users\navan\OneDrive\Attachments\Desktop\LMS\server\transcription-service\venv\Lib\site-packages\huggingface_hub\file_download.py:141: UserWarning: `huggingface_hub` cache-system uses symlinks by default to efficiently store duplicated files but your machine does not support them in C:\Users\navan\.cache\huggingface\hub\models--Systran--faster-whisper-base. Caching files will still work but in a degraded version that might require more space on your disk. This warning can be disabled by setting the `HF_HUB_DISABLE_SYMLINKS_WARNING` environment variable. For more details, see https://huggingface.co/docs/huggingface_hub/how-to-cache#limitations.
+To support symlinks on Windows, you either need to activate Developer Mode or to run Python as an administrator. In order to activate developer mode, see this article: https://docs.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development
+  warnings.warn(message)
+2026-08-18 01:02:44,983 INFO brainwave-whisper: Model 'base' loaded in 11.60s
+2026-08-18 01:02:45,031 INFO faster_whisper: Processing audio with duration 00:51.051
+2026-08-18 01:02:45,594 INFO faster_whisper: Detected language 'en' with probability 0.45
+2026-08-18 01:02:46,744 INFO brainwave-whisper: Transcribe done in 1.8 s (lang=en, audio=51.1 s, chars=3)
+2026-08-18 01:02:46,751 INFO brainwave-whisper: Request took 16.90 s
+2026-08-18 01:03:28,348 INFO brainwave-whisper: Downloading https://res.cloudinary.com/dvhodzpxb/video/upload/v1786895389/brainwave/course-videos/edhdtudrp0gvecoa7vx9.mp4
+2026-08-18 01:03:28,464 INFO httpx: HTTP Request: GET https://res.cloudinary.com/dvhodzpxb/video/upload/v1786895389/brainwave/course-videos/edhdtudrp0gvecoa7vx9.mp4 "HTTP/1.1 200 OK"
+2026-08-18 01:03:31,668 INFO brainwave-whisper: Downloaded in 3.32 s (55327063 bytes)
+2026-08-18 01:03:31,824 INFO faster_whisper: Processing audio with duration 00:51.051
+2026-08-18 01:03:32,372 INFO faster_whisper: Detected language 'en' with probability 0.45
+2026-08-18 01:03:33,511 INFO brainwave-whisper: Transcribe done in 1.7 s (lang=en, audio=51.1 s, chars=3)
+2026-08-18 01:03:33,519 INFO brainwave-whisper: Request took 5.17 s
+2026-08-18 01:04:29,616 INFO brainwave-whisper: Downloading https://res.cloudinary.com/dvhodzpxb/video/upload/v1786995260/brainwave/transcription-test/test_speech.mp4
+2026-08-18 01:04:30,054 INFO httpx: HTTP Request: GET https://res.cloudinary.com/dvhodzpxb/video/upload/v1786995260/brainwave/transcription-test/test_speech.mp4 "HTTP/1.1 200 OK"
+2026-08-18 01:04:30,174 INFO brainwave-whisper: Downloaded in 0.56 s (133686 bytes)
+2026-08-18 01:04:30,268 INFO faster_whisper: Processing audio with duration 00:09.985
+2026-08-18 01:04:30,809 INFO faster_whisper: Detected language 'en' with probability 1.00
+2026-08-18 01:04:31,574 INFO brainwave-whisper: Transcribe done in 1.3 s (lang=en, audio=10.0 s, chars=159)
+2026-08-18 01:04:31,575 INFO brainwave-whisper: Request took 1.96 s

@@ -8,7 +8,26 @@ const lectureSchema=new mongoose.Schema({
     lecturePublicId:{type:String,default:""},
     isPreviewFree:{type:Boolean,required:true},
     lectureOrder:{type:Number,required:true},
-
+    // ==========================================
+    // Automatic lecture transcription (faster-whisper)
+    // Added for the BrainWave transcription feature. The transcript belongs
+    // to this specific lecture. Existing courses simply keep the defaults.
+    // ==========================================
+    transcript:{type:String,default:""},
+    transcriptionStatus:{
+        type:String,
+        enum:['not_started','processing','completed','failed'],
+        default:'not_started'
+    },
+    transcriptionLanguage:{type:String,default:""},
+    transcriptionDuration:{type:Number,default:0},
+    // The Cloudinary publicId this transcript was generated from. Used to
+    // invalidate a stale transcript when a lecture's video is replaced.
+    transcriptionSourcePublicId:{type:String,default:""},
+    // Safe, human-readable error message (no internal stack traces).
+    transcriptionError:{type:String,default:""},
+    transcriptionStartedAt:{type:Date,default:null},
+    transcriptionCompletedAt:{type:Date,default:null},
 },{_id:false})
 
 const chapterSchema=new mongoose.Schema({
