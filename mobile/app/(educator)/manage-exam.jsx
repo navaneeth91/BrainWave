@@ -214,6 +214,14 @@ export default function ManageExamScreen() {
         <View style={styles.headerRow}>
           <Pressable onPress={() => router.back()} hitSlop={10}><Ionicons name="chevron-back" size={24} color={colors.text} /></Pressable>
           <Text style={typography.h2}>Manage Exam</Text>
+          <View style={{ flex: 1 }} />
+          <Pressable
+            onPress={() => router.push('/(tabs)')}
+            accessibilityLabel="Back to home"
+            style={styles.homeBtn}
+          >
+            <Ionicons name="home" size={20} color={colors.primaryDark} />
+          </Pressable>
         </View>
 
         {error ? <ErrorState message={error} onRetry={load} /> : null}
@@ -341,4 +349,14 @@ const styles = StyleSheet.create({
   questionIndex: { fontSize: 12, fontWeight: '700', color: colors.primaryDark },
   questionText: { fontSize: 14, fontWeight: '700', color: colors.text, marginBottom: 8 },
   optionText: { fontSize: 13, color: colors.textSecondary, marginBottom: 3 },
+  homeBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.primarySoft,
+    borderWidth: 1,
+    borderColor: '#FED7AA',
+  },
 });

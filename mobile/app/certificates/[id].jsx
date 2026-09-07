@@ -91,6 +91,7 @@ export default function CertificateDetailScreen() {
         </View>
 
         <Button title="Share Certificate" variant="outline" icon={<Ionicons name="share-outline" size={18} color={colors.primaryDark} />} onPress={onShare} style={{ marginTop: 16 }} />
+        <Button title="Verify Certificate" variant="secondary" icon={<Ionicons name="shield-checkmark-outline" size={18} color={colors.primaryDark} />} onPress={() => router.push(`/verify-certificate/${certificate.certificateId}`)} style={{ marginTop: 10 }} />
       </Screen>
     </RequireAuth>
   );

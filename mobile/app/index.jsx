@@ -21,6 +21,7 @@ export default function Index() {
     return <Redirect href="/(auth)/sign-in" />;
   }
 
-  // Educators go straight to their studio; students see the home tab.
-  return <Redirect href={isEducator ? '/(educator)/dashboard' : '/(tabs)'} />;
+  // Everyone lands on the Home tab. Educators reach their studio from Home
+  // (or from Profile), so there is always a clear path back to Home.
+  return <Redirect href="/(tabs)" />;
 }

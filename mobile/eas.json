@@ -1,0 +1,32 @@
+{
+  "cli": {
+    "version": ">= 22.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_c3RyaWtpbmctcmFtLTQyLmNsZXJrLmFjY291bnRzLmRldiQ",
+        "EXPO_PUBLIC_BACKEND_URL": "https://brain-wave-backend.vercel.app"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_c3RyaWtpbmctcmFtLTQyLmNsZXJrLmFjY291bnRzLmRldiQ",
+        "EXPO_PUBLIC_BACKEND_URL": "https://brain-wave-backend.vercel.app"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

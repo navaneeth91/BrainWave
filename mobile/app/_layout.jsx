@@ -1,17 +1,16 @@
 import React from 'react';
-import { ActivityIndicator, View } from 'react-native';
 import { Stack } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { ClerkProvider, useAuth } from '@clerk/clerk-expo';
 import { AppContextProvider } from '../src/context/AppContext';
-import { colors } from '../src/constants/theme';
+import BrandedSplash from '../src/components/BrandedSplash';
 
 // Clerk publishable key (same test instance used by the existing web client).
-const PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
-
-if (!PUBLISHABLE_KEY) {
-  throw new Error('Missing EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY in mobile/.env');
-}
+// Fallback keeps the value available even when .env is not bundled
+// (publishable keys are public identifiers, safe to embed).
+const PUBLISHABLE_KEY =
+  process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY ||
+  'pk_test_c3RyaWtpbmctcmFtLTQyLmNsZXJrLmFjY291bnRzLmRldiQ';
 
 // Secure token cache using expo-secure-store (required by Clerk for Expo).
 const tokenCache = {
@@ -45,14 +44,7 @@ function RootNavigator() {
   const { isLoaded } = useAuth();
 
   if (!isLoaded) {
-    return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background }}>
-        <View style={{ width: 84, height: 84, borderRadius: 24, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
-        <ActivityIndicator color={colors.primary} size="small" />
-      </View>
-    );
+    return <BrandedSplash />;
   }
 
   return (

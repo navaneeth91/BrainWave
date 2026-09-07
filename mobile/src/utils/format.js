@@ -109,6 +109,18 @@ export function flattenLectures(course) {
   return out;
 }
 
+/** True when a lecture URL is a YouTube watch/embed/short link. */
+export function isYouTubeUrl(url = '') {
+  if (!url) return false;
+  return /youtube\.com|youtu\.be/i.test(url);
+}
+
+/** True when a lecture URL is a BrainWave Cloudinary video. */
+export function isCloudinaryUrl(url = '') {
+  if (!url) return false;
+  return url.includes('cloudinary.com');
+}
+
 /** Format an ISO date string nicely. */
 export function formatDate(iso) {
   if (!iso) return '';

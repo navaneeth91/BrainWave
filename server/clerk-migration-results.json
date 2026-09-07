@@ -1,0 +1,104 @@
+[
+  {
+    "oldClerkId": "user_30lTcZgwKqWRtiDb1v0pun1Wdx4",
+    "newClerkId": "user_3IXo4JqVTcjSrwzqyqODzZnclxc",
+    "email": "pragathireddy26032005@gmail.com",
+    "success": true
+  },
+  {
+    "oldClerkId": "user_31515e8joX6zn9O28lPPdva8ZxX",
+    "newClerkId": "user_3IXo4SYPM3DOJy3aCIms7H1DnGh",
+    "email": "navaneethsiliveriyt@gmail.com",
+    "success": true
+  },
+  {
+    "oldClerkId": "user_32g3rpRtUij8UPeaTXbpDyndMKq",
+    "newClerkId": "user_3IXo4VyFz4SeGxfPMHX3giXYL54",
+    "email": "cadihec449@reifide.com",
+    "success": true
+  },
+  {
+    "oldClerkId": "user_32g6IYSJgtTCXZ9HVH2zi7jDUp0",
+    "newClerkId": "user_3IXo4Z57EEG96eIhlFmwP5913sl",
+    "email": "aq0fpl52ep@zudpck.com",
+    "success": true
+  },
+  {
+    "oldClerkId": "user_32g6uwKSmiIPFcqoKew6NQ61ILj",
+    "newClerkId": "user_3IXo4dqt7ltiqSxOEaJtNsWgVka",
+    "email": "creationsnavaneeth@gmail.com",
+    "success": true
+  },
+  {
+    "oldClerkId": "user_32g7di7uUucTiu9eb9H1U9xHE3U",
+    "newClerkId": "user_3IXo4iOohQpSxXChPDWP70OaK3g",
+    "email": "navaneethsiliveri02@gmail.com",
+    "success": true
+  },
+  {
+    "oldClerkId": "user_32iswGCaHBQHF76A3uNIpFHiJlb",
+    "newClerkId": "user_3IXo4edX04rybFNiWw56CZpCpa3",
+    "email": "darshankumar1810@gmail.com",
+    "success": true
+  },
+  {
+    "oldClerkId": "user_32iuKIVKDm8UcVcNNqHQifIUYeR",
+    "newClerkId": "user_3IXo4lHUWE8hmOfZVUhY7uOiBo0",
+    "email": "dhanasreesudhakar29@gmail.com",
+    "success": true
+  },
+  {
+    "oldClerkId": "user_32iuLezuCbK012GUYBnL2yerc1X",
+    "newClerkId": "user_3IXo4qKuMCR3pGXqy7tKk4SJbH4",
+    "email": "i31774526@gmail.com",
+    "success": true
+  },
+  {
+    "oldClerkId": "user_32mtvp3wATnXIBnlBpN6zhUe69z",
+    "email": "navaneethsiliveri7288@gmail.com",
+    "success": false,
+    "error": {
+      "errors": [
+        {
+          "message": "That email address is taken. Please try another.",
+          "long_message": "That email address is taken. Please try another.",
+          "code": "form_identifier_exists",
+          "meta": {
+            "param_name": "email_address"
+          }
+        }
+      ],
+      "clerk_trace_id": "f3ba38d192ffa8a42af2606a303c6777"
+    }
+  },
+  {
+    "oldClerkId": "user_32xExoMhNDCb72blNwb1onmFgkt",
+    "newClerkId": "user_3IXo4vViA1koz3dcPkScV7dcls6",
+    "email": "harivardhanmodi@gmail.com",
+    "success": true
+  },
+  {
+    "oldClerkId": "user_33CeYAck4y8AaRIEY31BlCJ7Mny",
+    "newClerkId": "user_3IXo4yz3LM14ozwfRLp61yDoYz9",
+    "email": "sathvikanthony2774@gmail.com",
+    "success": true
+  },
+  {
+    "oldClerkId": "user_35Z3HKYUSbn2es13z6fkRrrBTsI",
+    "newClerkId": "user_3IXo55NtLsyofiqDXPiW1fw8ygm",
+    "email": "saitejagatla913@gmail.com",
+    "success": true
+  },
+  {
+    "oldClerkId": "user_37k0g76YqrttNFLK18q498RoxnX",
+    "newClerkId": "user_3IXo56ALSX6Dn7hGYfMmwcm8a83",
+    "email": "siliverynavaneeth91@gmail.com",
+    "success": true
+  },
+  {
+    "oldClerkId": "user_3Ezb2CUxwiHQC3lqPklBFD8NTKC",
+    "newClerkId": "user_3IXo5GysYMDB89m51LyoQRFKYRJ",
+    "email": "hemanthsaireddy09@gmail.com",
+    "success": true
+  }
+]

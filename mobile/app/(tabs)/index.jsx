@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,12 +10,12 @@ import HorizontalCourseCard from '../../src/components/HorizontalCourseCard';
 import EmptyState from '../../src/components/EmptyState';
 import { useApp } from '../../src/context/AppContext';
 import useProgressMap from '../../src/hooks/useProgressMap';
-import { colors, typography } from '../../src/constants/theme';
+import { colors, radius, typography } from '../../src/constants/theme';
 import { lectureCount } from '../../src/utils/format';
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { user, userData, allCourses, coursesLoading, enrolledCourses } = useApp();
+  const { user, userData, allCourses, coursesLoading, enrolledCourses, isEducator } = useApp();
   const [query, setQuery] = useState('');
 
   const { progressMap } = useProgressMap(enrolledCourses);
@@ -56,6 +56,19 @@ export default function HomeScreen() {
       </View>
 
       <SearchBar value={query} onChangeText={setQuery} style={{ marginBottom: 16 }} />
+
+      {isEducator ? (
+        <Pressable style={styles.educatorBanner} onPress={() => router.push('/(educator)/dashboard')}>
+          <View style={styles.educatorIconWrap}>
+            <Ionicons name="easel" size={22} color={colors.primaryDark} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.educatorBannerTitle}>Educator Studio</Text>
+            <Text style={styles.educatorBannerText}>Manage your courses, students, and exams.</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color={colors.primaryDark} />
+        </Pressable>
+      ) : null}
 
       {query.trim() ? (
         <View style={{ marginBottom: 8 }}>
@@ -169,4 +182,25 @@ const styles = StyleSheet.create({
     paddingVertical: 24,
   },
   footerNoteText: { fontSize: 12, color: colors.textMuted },
+  educatorBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: colors.primarySoft,
+    borderWidth: 1,
+    borderColor: '#FED7AA',
+    borderRadius: radius.lg,
+    padding: 14,
+    marginBottom: 16,
+  },
+  educatorIconWrap: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  educatorBannerTitle: { fontSize: 15, fontWeight: '800', color: colors.text },
+  educatorBannerText: { fontSize: 12, color: colors.textSecondary, marginTop: 2 },
 });

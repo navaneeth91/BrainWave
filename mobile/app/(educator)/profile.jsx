@@ -3,6 +3,7 @@ import { Alert, Pressable, StyleSheet, Text, View, Image } from 'react-native';
 import { useAuth, useUser } from '@clerk/clerk-expo';
 import { Ionicons } from '@expo/vector-icons';
 import Screen from '../../src/components/Screen';
+import EducatorHeader from '../../src/components/EducatorHeader';
 import { useApp } from '../../src/context/AppContext';
 import { colors, radius, typography } from '../../src/constants/theme';
 
@@ -36,6 +37,7 @@ export default function EducatorProfileScreen() {
 
   return (
     <Screen>
+      <EducatorHeader title="Studio" />
       <Text style={[typography.h2, { marginBottom: 16 }]}>Educator Profile</Text>
 
       <View style={styles.profileCard}>

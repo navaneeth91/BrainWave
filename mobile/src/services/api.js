@@ -1149,6 +1149,53 @@ export const verifyCertificate = async (
 };
 
 // ===========================================================================
+// BRAINWAVE AI LEARNING ASSISTANT
+// Talks to the EXISTING backend endpoint: POST /api/ai/chat
+// The Gemini API key lives only on the server — never in the mobile app.
+// ===========================================================================
+
+export const aiChat = async ({
+  courseId,
+  lectureId,
+  message,
+  conversation = [],
+}) => {
+  const { data } = await api.post(
+    '/api/ai/chat',
+    {
+      courseId,
+      lectureId,
+      message,
+      conversation,
+    },
+    { timeout: 60000 }
+  );
+
+  if (!data?.success) {
+    throw new Error(data?.message || 'BrainWave AI could not respond.');
+  }
+
+  return data.reply;
+};
+
+// Friendly, user-safe messages for each AI failure mode (mirrors useBrainwaveAI).
+export const aiFriendlyError = (error) => {
+  const status = error?.response?.status;
+  if (status === 401) return 'Please sign in to use BrainWave AI.';
+  if (status === 403) return 'You must be enrolled in this course to use BrainWave AI.';
+  if (status === 404) return 'The course or lecture could not be found. Please refresh and try again.';
+  if (status === 429) return "You're asking BrainWave AI a lot right now. Please wait a moment and try again.";
+  if (status >= 500) return "Sorry, BrainWave AI couldn't respond right now. Please try again.";
+  if (error?.code === 'ECONNABORTED' || error?.code === 'ETIMEDOUT') {
+    return 'BrainWave AI is taking a little too long to respond. Please try again.';
+  }
+  if (error?.message === 'Network Error') {
+    return 'A network error occurred. Please check your connection and try again.';
+  }
+  return "Sorry, BrainWave AI couldn't respond right now. Please try again.";
+};
+
+// ===========================================================================
 // DEFAULT EXPORT
 // ===========================================================================
 

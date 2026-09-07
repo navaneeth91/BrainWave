@@ -8,6 +8,7 @@ import { getEducatorCourses, getErrorMessage, CURRENCY_SYMBOL } from '../../src/
 import { colors, radius, typography } from '../../src/constants/theme';
 import ErrorState from '../../src/components/ErrorState';
 import EmptyState from '../../src/components/EmptyState';
+import EducatorHeader from '../../src/components/EducatorHeader';
 import { formatPrice } from '../../src/utils/format';
 
 export default function EducatorCoursesScreen() {
@@ -50,6 +51,7 @@ export default function EducatorCoursesScreen() {
         contentContainerStyle={styles.content}
         ListHeaderComponent={
           <View style={{ marginBottom: 12 }}>
+            <EducatorHeader title="Studio" />
             <Text style={typography.h2}>My Courses</Text>
             <Text style={styles.subtitle}>Courses created under your educator account.</Text>
             {error ? <ErrorState message={error} onRetry={load} /> : null}

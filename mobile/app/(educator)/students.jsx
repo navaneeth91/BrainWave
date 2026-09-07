@@ -7,6 +7,7 @@ import { getEnrolledStudentsData, getErrorMessage } from '../../src/services/api
 import { colors, radius, typography } from '../../src/constants/theme';
 import ErrorState from '../../src/components/ErrorState';
 import EmptyState from '../../src/components/EmptyState';
+import EducatorHeader from '../../src/components/EducatorHeader';
 
 export default function EducatorStudentsScreen() {
   const [students, setStudents] = useState([]);
@@ -58,6 +59,7 @@ export default function EducatorStudentsScreen() {
         contentContainerStyle={styles.content}
         ListHeaderComponent={
           <View>
+            <EducatorHeader title="Studio" />
             <Text style={typography.h2}>Students</Text>
             <Text style={styles.subtitle}>View enrollments across your educator courses.</Text>
             <View style={styles.searchWrap}>

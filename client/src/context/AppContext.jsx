@@ -68,11 +68,13 @@ export const AppContextProvider = (props)=>{
                 }
             });
             if(data.success){
-            setUserData(data.user);
-            }
-            else{
-                 toast.error(data.message);
-            }
+    console.log("✅ USER DATA SUCCESS:", data.user);
+    setUserData(data.user);
+}
+else{
+    console.log("❌ USER DATA ERROR:", data.message);
+    toast.error(data.message);
+}
         } catch (error) {
             toast.error(error.message)
         }
@@ -111,12 +113,14 @@ export const AppContextProvider = (props)=>{
                     Authorization: `Bearer ${token}`
                 }
         });
-        if(data.success){
-            setenrolledCourses(data.enrolledCourses.reverse())
-        }
-        else{
-            toast.error(data.message)
-        }
+       if(data.success){
+    console.log("✅ ENROLLED COURSES SUCCESS:", data.enrolledCourses);
+    setenrolledCourses(data.enrolledCourses.reverse());
+}
+else{
+    console.log("❌ ENROLLED COURSES ERROR:", data.message);
+    toast.error(data.message);
+}
     } catch (error) {
         toast.error(error.message);
     }

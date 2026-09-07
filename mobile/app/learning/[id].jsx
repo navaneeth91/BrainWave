@@ -1,23 +1,34 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import RequireAuth from '../../src/components/RequireAuth';
-import Screen from '../../src/components/Screen';
 import ScreenHeader from '../../src/components/ScreenHeader';
 import Button from '../../src/components/Button';
 import ProgressBar from '../../src/components/ProgressBar';
 import VideoPlayer from '../../src/components/VideoPlayer';
 import ErrorState from '../../src/components/ErrorState';
+import Screen from '../../src/components/Screen';
+import BrainwaveAIAssistant from '../../src/components/ai/BrainwaveAIAssistant';
 import { useApp } from '../../src/context/AppContext';
-import { getEnrolledCourses, getCourseProgress, updateCourseProgress, getCourseById, getExamByCourse, getErrorMessage } from '../../src/services/api';
+import {
+  getEnrolledCourses,
+  getCourseProgress,
+  updateCourseProgress,
+  getCourseById,
+  getExamByCourse,
+  rateCourse,
+  getErrorMessage,
+} from '../../src/services/api';
 import { flattenLectures, lectureCount, progressPercent } from '../../src/utils/format';
 import { colors, radius, typography } from '../../src/constants/theme';
 
 export default function LearningDetailScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
-  const { fetchEnrolledCourses } = useApp();
+  const { fetchEnrolledCourses, userData } = useApp();
 
   const [course, setCourse] = useState(null);
   const [progress, setProgress] = useState(null);
@@ -27,6 +38,9 @@ export default function LearningDetailScreen() {
   const [openChapters, setOpenChapters] = useState({});
   const [marking, setMarking] = useState(false);
   const [examData, setExamData] = useState(null);
+  const [initialRating, setInitialRating] = useState(0);
+  const [ratingBusy, setRatingBusy] = useState(false);
+  const autoMarkedRef = useRef(null);
 
   const lectures = useMemo(() => flattenLectures(course), [course]);
   const totalLectures = course ? lectureCount(course) : 0;
@@ -60,6 +74,9 @@ export default function LearningDetailScreen() {
 
       setCourse(found);
 
+      const myRating = (found.courseRatings || []).find((r) => r.userId === userData?._id)?.rating;
+      setInitialRating(Number(myRating) || 0);
+
       let prog = null;
       try {
         prog = await getCourseProgress(String(id));
@@ -83,7 +100,7 @@ export default function LearningDetailScreen() {
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, userData]);
 
   useEffect(() => {
     load();
@@ -102,6 +119,31 @@ export default function LearningDetailScreen() {
     } finally {
       setMarking(false);
     }
+  };
+
+  const handleRate = async (value) => {
+    if (!course || ratingBusy) return;
+    setRatingBusy(true);
+    setInitialRating(value);
+    try {
+      await rateCourse(course._id, Number(value));
+      Alert.alert('Thanks!', 'Your rating has been saved.');
+    } catch (err) {
+      setInitialRating(0);
+      Alert.alert('Rating failed', getErrorMessage(err));
+    } finally {
+      setRatingBusy(false);
+    }
+  };
+
+  // Auto-complete a Cloudinary lecture when its video plays to the end
+  // (mirrors the web player's handleNativeVideoEnded).
+  const handleVideoEnded = async () => {
+    if (!course || !current) return;
+    if (autoMarkedRef.current === current.lectureId) return;
+    if (completedIds.has(current.lectureId)) return;
+    autoMarkedRef.current = current.lectureId;
+    await onMarkComplete();
   };
 
   const goPrev = () => currentIndex > 0 && setCurrentId(lectures[currentIndex - 1].lectureId);
@@ -127,8 +169,10 @@ export default function LearningDetailScreen() {
 
   return (
     <RequireAuth>
-      <Screen>
+      <SafeAreaView edges={['top', 'left', 'right']} style={styles.safe}>
+        <StatusBar style="dark" />
         <ScreenHeader title={course.courseTitle || 'Learning'} onBack={() => router.back()} />
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
 
         <View style={styles.progressWrap}>
           <ProgressBar percent={percent} showLabel />
@@ -138,7 +182,11 @@ export default function LearningDetailScreen() {
         <View style={styles.currentCard}>
           <Text style={styles.lectureNum}>Now playing</Text>
           <Text style={styles.lectureTitle}>{current?.lectureTitle || 'No lecture selected'}</Text>
-          {current?.lectureUrl ? <VideoPlayer lectureUrl={current.lectureUrl} style={{ marginTop: 12 }} /> : <Text style={styles.noVideo}>This lecture video is unavailable.</Text>}
+          {current?.lectureUrl ? (
+            <VideoPlayer lectureUrl={current.lectureUrl} onEnded={handleVideoEnded} thumbnailUrl={course?.courseThumbnail} style={{ marginTop: 12 }} />
+          ) : (
+            <Text style={styles.noVideo}>This lecture video is unavailable.</Text>
+          )}
           <View style={styles.navRow}>
             <Button title="Previous" variant="outline" disabled={currentIndex === 0} onPress={goPrev} style={{ flex: 1 }} />
             <Button title={completedIds.has(current?.lectureId) ? 'Completed' : 'Mark Complete'} loading={marking} disabled={!current || completedIds.has(current?.lectureId)} onPress={onMarkComplete} style={{ flex: 1 }} />
@@ -195,7 +243,31 @@ export default function LearningDetailScreen() {
             <Button title={progress?.completed ? 'Take Final Exam' : 'Complete Course to Unlock Exam'} disabled={!progress?.completed} onPress={() => router.push(`/exam/${examData._id}`)} style={{ marginTop: 14 }} />
           </View>
         ) : null}
-      </Screen>
+
+        <View style={styles.ratingCard}>
+          <Text style={styles.ratingTitle}>How was this course?</Text>
+          <Text style={styles.ratingSub}>Your feedback helps us improve.</Text>
+          <View style={styles.ratingRow}>
+            {[1, 2, 3, 4, 5].map((star) => {
+              const active = star <= initialRating;
+              return (
+                <Pressable
+                  key={star}
+                  onPress={() => handleRate(star)}
+                  hitSlop={6}
+                  accessibilityLabel={`Rate ${star} out of 5`}
+                >
+                  <Ionicons name={active ? 'star' : 'star-outline'} size={30} color={active ? '#F59E0B' : '#D1D5DB'} />
+                </Pressable>
+              );
+            })}
+            {initialRating > 0 ? <Text style={styles.ratingValue}>{initialRating}/5</Text> : null}
+          </View>
+          {ratingBusy ? <Text style={styles.ratingSaving}>Saving your rating…</Text> : null}
+        </View>
+        </ScrollView>
+        <BrainwaveAIAssistant courseData={course} currentLecture={current} />
+      </SafeAreaView>
     </RequireAuth>
   );
 }
@@ -210,6 +282,8 @@ function ExamChip({ label, value }) {
 }
 
 const styles = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: colors.background },
+  content: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 28 },
   progressWrap: { marginTop: 12 },
   progressText: { fontSize: 12, color: colors.textSecondary, marginTop: 6 },
   currentCard: { backgroundColor: colors.primarySoft, borderRadius: radius.lg, padding: 16, marginTop: 16 },
@@ -231,4 +305,10 @@ const styles = StyleSheet.create({
   examChip: { flex: 1, backgroundColor: colors.surface, borderRadius: radius.md, paddingVertical: 8, alignItems: 'center' },
   examChipLabel: { fontSize: 11, color: colors.textSecondary },
   examChipValue: { fontSize: 13, fontWeight: '700', color: colors.text, marginTop: 2 },
+  ratingCard: { marginTop: 24, backgroundColor: colors.surface, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.borderLight, padding: 16 },
+  ratingTitle: { fontSize: 16, fontWeight: '800', color: colors.text },
+  ratingSub: { fontSize: 13, color: colors.textSecondary, marginTop: 2 },
+  ratingRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 },
+  ratingValue: { marginLeft: 8, fontSize: 14, fontWeight: '700', color: colors.textSecondary },
+  ratingSaving: { fontSize: 12, color: colors.textMuted, marginTop: 8 },
 });

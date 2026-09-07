@@ -7,6 +7,7 @@ import { colors, radius, typography } from '../../src/constants/theme';
 import ErrorState from '../../src/components/ErrorState';
 import Button from '../../src/components/Button';
 import StatCard from '../../src/components/educator/StatCard';
+import EducatorHeader from '../../src/components/EducatorHeader';
 
 export default function EducatorDashboardScreen() {
   const [dashboardData, setDashboardData] = useState(null);
@@ -48,6 +49,7 @@ export default function EducatorDashboardScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} colors={[colors.primary]} />}
         contentContainerStyle={styles.content}
       >
+        <EducatorHeader title="Studio" />
         <Text style={typography.h2}>Educator Dashboard</Text>
         <Text style={styles.subtitle}>Monitor your courses, students, and earnings.</Text>
 
